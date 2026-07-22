@@ -1,0 +1,712 @@
+<!DOCTYPE html>
+  <html lang="ja">
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#1E2761">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="しまりす家計">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>しまりす家計ダッシュボード</title>
+  <style>
+    #kakei-root{
+      --navy:#1E2761; --navy-d:#141A45; --gold:#FFC93C; --gold-d:#E8A800;
+      --e1:#FF6B6B; --e1-l:#FFE3E3; --e2:#4D96FF; --e2-l:#E2EEFF;
+      --e3:#FFB84D; --e3-l:#FFF1DD; --e4:#3FBF6F; --e4-l:#E4F7E6;
+      --asset:#7C6BD6; --neg:#E5484D; --bg:#EEF0F6; --ink:#1B1F3B; --sub:#6B7089;
+      font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN",-apple-system,sans-serif;
+    font-variant-numeric:tabular-nums; color:var(--ink); background:var(--bg);
+    border-radius:16px; padding:0; max-width:720px; margin:0 auto; overflow:hidden;
+}
+  html,body{margin:0; padding:0; background:var(--bg);}
+  body{padding:14px;}
+  #kakei-root *{box-sizing:border-box;}
+      .k-head{background:linear-gradient(135deg,var(--navy),var(--navy-d)); color:#fff; padding:20px 22px 16px;}
+    .k-head h1{font-size:16px; font-weight:700; margin:0 0 2px; letter-spacing:.02em;}
+  .k-head p{font-size:11px; color:#B9BEE0; margin:0;}
+    .k-tabs{display:flex; gap:4px; padding:10px 14px 0;}
+  .k-tab{flex:1; text-align:center; padding:9px 4px; font-size:12.5px; font-weight:700;
+    color:#B9BEE0; background:transparent; border:none; border-radius:10px 10px 0 0; cursor:pointer;}
+      .k-tab.active{color:var(--navy); background:var(--bg);}
+  .k-body{padding:18px 18px 26px;}
+  .k-card{background:#fff; border-radius:14px; padding:16px 18px; margin-bottom:14px; box-shadow:0 1px 3px rgba(30,39,97,.06);}
+      .k-hero{text-align:center; padding:22px 18px 18px;}
+  .k-hero .k-label{font-size:12px; color:var(--sub); font-weight:700; letter-spacing:.04em;}
+  .k-hero .k-amt{font-size:40px; font-weight:800; color:var(--navy); margin:6px 0 2px; letter-spacing:-.01em;}
+  .k-hero .k-amt.neg{color:var(--neg);}
+  .k-hero .k-sub{font-size:11.5px; color:var(--sub);}
+  .k-allocbar{height:26px; border-radius:8px; overflow:hidden; display:flex; margin:10px 0; box-shadow:inset 0 0 0 1px rgba(0,0,0,.04);}
+  .k-allocbar span{height:100%;}
+  .k-allocbar .free{background:linear-gradient(90deg,var(--gold),var(--gold-d)); box-shadow:0 0 10px rgba(255,201,60,.7) inset;}
+  .k-legend{display:flex; flex-wrap:wrap; gap:8px 14px; font-size:10.5px; color:var(--sub); margin-top:8px;}
+  .k-legend i{display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:4px; vertical-align:1px;}
+  .k-chiprow{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:14px;}
+  .k-chip{background:var(--bg); border-radius:10px; padding:10px 8px; text-align:center;}
+  .k-chip .t{font-size:10px; color:var(--sub); font-weight:700;}
+  .k-chip .v{font-size:14.5px; font-weight:800; color:var(--navy); margin-top:3px;}
+  .k-chip.paused{opacity:.4;}
+  .k-spot{display:flex; align-items:center; justify-content:space-between; background:var(--asset); color:#fff;
+      border-radius:12px; padding:12px 16px; margin-top:12px;}
+  .k-spot .t{font-size:11.5px; opacity:.85;}
+  .k-spot .v{font-size:18px; font-weight:800;}
+  .k-enemy{border-radius:12px; margin-bottom:10px; overflow:hidden; border:1px solid rgba(0,0,0,.05);}
+  .k-enemy summary{list-style:none; cursor:pointer; padding:11px 14px; display:flex; align-items:center; justify-content:space-between; font-size:12.5px; font-weight:700;}
+  .k-enemy summary::-webkit-details-marker{display:none;}
+  .k-enemy summary .dot{display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px;}
+  .k-enemy .items{padding:2px 14px 12px;}
+  .k-item{display:flex; align-items:center; justify-content:space-between; padding:6px 0; border-top:1px solid #F1F2F7;}
+  .k-item label{font-size:12px; color:var(--ink);}
+  .k-item input{width:100px; text-align:right; border:1px solid #DDE0EE; border-radius:7px; padding:5px 8px; font-size:12.5px; font-family:inherit;}
+  .k-item input:focus{outline:2px solid var(--gold); border-color:transparent;}
+  .k-income-row{display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;}
+  .k-income-row label{font-size:12.5px; font-weight:700; color:var(--navy);}
+  .k-income-row input{width:120px; text-align:right; border:1px solid #DDE0EE; border-radius:8px; padding:7px 10px; font-size:13px; font-family:inherit;}
+  .k-goalbox{background:linear-gradient(135deg,var(--navy),var(--navy-d)); color:#fff; border-radius:14px; padding:16px 18px; margin-bottom:14px;}
+    .k-goalbox .t{font-size:11px; color:#B9BEE0; font-weight:700;}
+    .k-goalbox .v{font-size:22px; font-weight:800; margin-top:4px; color:var(--gold);}
+  .k-goalbox .s{font-size:11px; color:#B9BEE0; margin-top:2px;}
+    .k-secttl{font-size:12.5px; font-weight:800; color:var(--navy); margin:2px 0 10px;}
+  .k-assump{display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-top:1px solid #F1F2F7;}
+  .k-assump:first-child{border-top:none;}
+  .k-assump label{font-size:12px; color:var(--ink); flex:1;}
+  .k-assump .hint{font-size:10px; color:var(--sub); display:block; margin-top:1px;}
+  .k-assump input[type=number]{width:96px; text-align:right; border:1px solid #DDE0EE; border-radius:7px; padding:5px 8px; font-size:12.5px; font-family:inherit;}
+  .k-assump input[type=range]{width:120px; accent-color:var(--gold-d);}
+  .k-assump .rangeval{width:44px; text-align:right; font-size:12.5px; font-weight:700; color:var(--navy);}
+  .k-nav{display:flex; align-items:center; justify-content:center; gap:14px; margin-bottom:14px;}
+  .k-nav button{background:#fff; border:1px solid #DDE0EE; border-radius:8px; width:30px; height:30px; font-size:14px; cursor:pointer; color:var(--navy);}
+      .k-nav .cur{font-size:13.5px; font-weight:800; color:var(--navy); min-width:90px; text-align:center;}
+  .k-savebtn{width:100%; background:var(--navy); color:#fff; border:none; border-radius:10px; padding:11px; font-size:13px; font-weight:700; cursor:pointer; margin-top:6px;}
+    .k-savebtn:active{transform:scale(.98);}
+  .k-toast{position:fixed; left:50%; bottom:18px; transform:translateX(-50%); background:var(--navy); color:#fff;
+      padding:8px 16px; border-radius:20px; font-size:12px; opacity:0; pointer-events:none; transition:opacity .25s; z-index:999;}
+  .k-toast.show{opacity:1;}
+  .k-note{font-size:10.5px; color:var(--sub); line-height:1.6; margin-top:2px;}
+  .k-nextinvest .row{display:flex; justify-content:space-between; font-size:12px; padding:6px 0; border-top:1px solid #F1F2F7; color:var(--ink);}
+  .k-nextinvest .row:first-child{border-top:none;}
+  .k-nextinvest .row.total{font-weight:800; color:var(--navy); font-size:13.5px; border-top:2px solid var(--gold); margin-top:4px; padding-top:8px;}
+  .k-walletrow{display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-bottom:12px;}
+  .k-wallet{border-radius:10px; padding:10px 8px; text-align:center; color:#fff;}
+    .k-wallet .t{font-size:10px; opacity:.85; font-weight:700;}
+  .k-wallet .v{font-size:13.5px; font-weight:800; margin-top:3px;}
+  .k-scenario{width:100%; border-collapse:collapse; font-size:12px;}
+  .k-scenario th,.k-scenario td{padding:8px 6px; text-align:center; border-top:1px solid #F1F2F7;}
+  .k-scenario th{color:var(--sub); font-weight:700; font-size:10.5px;}
+  .k-scenario td.hi{color:var(--navy); font-weight:800;}
+  .k-scenario tr.current td{background:var(--e3-l);}
+  .k-databox textarea{width:100%; height:88px; font-size:11px; font-family:monospace; border:1px solid #DDE0EE; border-radius:8px; padding:8px; margin-top:8px;}
+  .k-databox .k-savebtn.alt{background:var(--asset);}
+  svg text{font-family:"Hiragino Sans",sans-serif;}
+  @media (max-width:420px){
+    .k-hero .k-amt{font-size:32px;}
+        .k-chiprow{grid-template-columns:1fr 1fr 1fr; gap:6px;}
+}
+</style>
+  </head>
+  <body>
+  <div id="kakei-root">
+    <div class="k-head">
+      <h1>しまりす家計ダッシュボード</h1>
+      <p id="k-headsub">マネープラン v5・月次エンジン連動</p>
+    </div>
+    <div class="k-tabs">
+      <button class="k-tab active" data-tab="month">今月</button>
+      <button class="k-tab" data-tab="year">年間</button>
+      <button class="k-tab" data-tab="assump">前提</button>
+    </div>
+    <div class="k-body">
+      <div id="tab-month"></div>
+      <div id="tab-year" style="display:none"></div>
+      <div id="tab-assump" style="display:none"></div>
+    </div>
+  </div>
+  <div class="k-toast" id="k-toast">保存しました</div>
+
+  <script>
+  (function(){
+    const ITEMS = [
+{id:'housing', name:'住宅', enemy:1},
+  {id:'utilities', name:'水道・光熱費', enemy:1},
+  {id:'telecom', name:'通信費', enemy:1},
+  {id:'subscription', name:'サブスク費', enemy:1},
+  {id:'insurance', name:'保険', enemy:1},
+  {id:'tax', name:'税・社会保障', enemy:1},
+  {id:'education', name:'教養・教育', enemy:1},
+  {id:'food', name:'食費', enemy:2},
+  {id:'daily', name:'日用品', enemy:2},
+  {id:'transport', name:'交通費', enemy:2},
+  {id:'health', name:'健康・医療', enemy:2},
+  {id:'cash_card', name:'現金・カード', enemy:2},
+  {id:'gasoline', name:'ガソリン', enemy:2},
+  {id:'annual_fee', name:'年会費・自動車税', enemy:3},
+  {id:'car_insurance', name:'自動車保険（年一括）', enemy:3},
+  {id:'car_other', name:'自動車（その他）', enemy:3},
+  {id:'hobby', name:'趣味・娯楽', enemy:4},
+  {id:'clothing', name:'衣服・美容', enemy:4},
+  {id:'social', name:'交際費', enemy:4},
+  {id:'special', name:'特別な支出', enemy:4},
+  {id:'other', name:'その他', enemy:4},
+  {id:'uncategorized', name:'未分類', enemy:4},
+    ];
+  const ENEMY_META = {
+    1:{label:'敵1', kind:'毎月・固定', color:'var(--e1)', light:'var(--e1-l)'},
+        2:{label:'敵2', kind:'毎月・変動', color:'var(--e2)', light:'var(--e2-l)'},
+    3:{label:'敵3', kind:'不定期・固定', color:'var(--e3)', light:'var(--e3-l)'},
+        4:{label:'敵4', kind:'不定期・変動', color:'var(--e4)', light:'var(--e4-l)'},
+      };
+  // 実データはこの中に含めていません（公開ソースのため）。
+  // 前提タブの「データを読み込む」からJSONを一度だけインポートすれば localStorage に保存され、以後はこの端末に残ります。
+  const DEFAULT_ASSUMPTIONS = {
+        defenseTarget:0, defenseStart:0, investStart:0, travelStart:0,
+              baseIncome:0, bonus:0, expNormal:0, expJul26:0,
+              fixedInvest:0, fixedSave:0, fixedTravel:0, returnRate:0.0,
+              tripYear:2028, tripMonth:6, tripAmount:0, saveAfterTarget:1, goalTotal:0,
+              cardRatio:0.7,
+          };
+  const SEED_ACTUALS = {};
+
+  const fmt = n => Math.round(n).toLocaleString('ja-JP');
+  const monthKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
+
+  let assumptions = Object.assign({}, DEFAULT_ASSUMPTIONS);
+  let actuals = JSON.parse(JSON.stringify(SEED_ACTUALS));
+  let curYear, curMonth;
+{
+    const now = new Date();
+    curYear = now.getFullYear() < 2026 ? 2026 : now.getFullYear();
+    curMonth = curYear === 2026 && now.getMonth()+1 < 7 ? 7 : now.getMonth()+1;
+    if (curYear === 2026 && curMonth < 7) { curYear = 2026; curMonth = 7; }
+}
+
+  function toast(msg){
+        const t = document.getElementById('k-toast');
+    t.textContent = msg; t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 1600);
+  }
+
+  async function loadData(){
+    try {
+      const a = localStorage.getItem('kakei-assumptions');
+      if (a) assumptions = Object.assign({}, DEFAULT_ASSUMPTIONS, JSON.parse(a));
+    } catch(e){}
+    try {
+      const b = localStorage.getItem('kakei-actuals');
+      if (b) actuals = Object.assign({}, SEED_ACTUALS, JSON.parse(b));
+    } catch(e){}
+  }
+  async function saveAssumptions(){
+    try { localStorage.setItem('kakei-assumptions', JSON.stringify(assumptions)); } catch(e){}
+  }
+  async function saveActuals(){
+    try { localStorage.setItem('kakei-actuals', JSON.stringify(actuals)); } catch(e){}
+  }
+
+  function getMonthActual(y,m){ return actuals[monthKey(y,m)] || null; }
+  function expTotal(actual){ if(!actual) return 0; return Object.values(actual.exp||{}).reduce((a,b)=>a+(b||0),0); }
+  function enemySubtotal(actual, enemy, excludeHobbySocial){
+        if (!actual) return 0;
+    let s = 0;
+    ITEMS.forEach(it=>{
+            if (it.enemy!==enemy) return;
+      if (excludeHobbySocial && (it.id==='hobby'||it.id==='social')) return;
+      s += (actual.exp && actual.exp[it.id]) || 0;
+  });
+    return s;
+}
+
+  function simulate(overrideReturn){
+        let defense = assumptions.defenseStart, invested = assumptions.investStart, travel = assumptions.travelStart;
+    let cardBal = 0, prevCard = 0;
+    const returnRate = (overrideReturn===undefined) ? assumptions.returnRate : overrideReturn;
+    const mret = Math.pow(1+returnRate, 1/12) - 1;
+    let y = 2026, m = 7;
+    const trace = [];
+    for (let i=0;i<120;i++){
+      const isBonus = (m===6||m===12);
+      const isJulPause = (y===2026 && m===7);
+      const actual = getMonthActual(y,m);
+      const income = actual ? actual.income : assumptions.baseIncome;
+      const expense = actual ? expTotal(actual) : (isJulPause ? assumptions.expJul26 : assumptions.expNormal);
+      const fixedInvest = assumptions.fixedInvest;
+      const fixedSave = isJulPause ? 0 : assumptions.fixedSave;
+      const fixedTravel = isJulPause ? 0 : assumptions.fixedTravel;
+      const regFree = Math.max(0, income - expense - fixedInvest - fixedSave - fixedTravel);
+      const defenseAtStart = defense;
+      const spot = (defense < assumptions.defenseTarget) ? regFree*0.5 : regFree;
+      const bonus = isBonus ? assumptions.bonus : 0;
+      let bonus2def = 0;
+      if (bonus>0 && defense < assumptions.defenseTarget) bonus2def = Math.min(bonus, assumptions.defenseTarget-defense);
+      const bonus2inv = bonus - bonus2def;
+      const noSaveAfter = (assumptions.saveAfterTarget===0 && defense>=assumptions.defenseTarget);
+      const savToDef = noSaveAfter ? 0 : fixedSave;
+      const savToInv = noSaveAfter ? fixedSave : 0;
+      defense = defense + savToDef + bonus2def;
+      const investAction = fixedInvest + spot + bonus2inv + savToInv; // 今月実行する投資アクションの総額
+      invested = invested*(1+mret) + investAction;
+      let tripAdd = 0;
+      if (y===assumptions.tripYear && m===assumptions.tripMonth) tripAdd = assumptions.tripAmount;
+      travel = travel + fixedTravel + tripAdd;
+      const total = defense+invested+travel;
+      // カード計上・未精算残高（参考トラッキング。純資産計算には影響させない）
+      const cardCharge = expense * assumptions.cardRatio;
+      cardBal = cardBal + cardCharge - prevCard;
+      const cashTotal = total - cardBal + prevCard;
+      prevCard = cardCharge;
+      trace.push({y,m,defense,invested,travel,total,free:regFree,spot,expense,income,
+                isActual:!!actual, defenseAtStart, investAction, bonus, bonus2def, bonus2inv,
+                cardCharge, cardBal, cashTotal});
+      if (m===12){m=1;y+=1;} else m+=1;
+    }
+    return trace;
+    }
+  function findGoal(trace){
+    for (let i=0;i<trace.length;i++) if (trace[i].total >= assumptions.goalTotal) return {idx:i, ...trace[i]};
+    return null;
+}
+  function findGoalAt(rate){
+    return findGoal(simulate(rate));
+}
+
+  // ---------------- 今月タブ ----------------
+  function renderMonth(){
+    const el = document.getElementById('tab-month');
+    const actual = getMonthActual(curYear, curMonth) || {income: assumptions.baseIncome, exp:{}};
+    const income = actual.income;
+    const isJulPause = (curYear===2026 && curMonth===7);
+    const e1 = enemySubtotal(actual,1,false), e2 = enemySubtotal(actual,2,false),
+          e3 = enemySubtotal(actual,3,false), e4x = enemySubtotal(actual,4,true);
+    const hobby = (actual.exp&&actual.exp.hobby)||0, social=(actual.exp&&actual.exp.social)||0;
+    const fixedInvest = assumptions.fixedInvest;
+    const fixedSave = isJulPause?0:assumptions.fixedSave;
+    const fixedTravel = isJulPause?0:assumptions.fixedTravel;
+    const assetForm = fixedInvest+fixedSave+fixedTravel;
+    const essential = e1+e2+e3+e4x;
+    const fun = hobby+social;
+    const free = income - essential - assetForm - fun;
+
+    const total = essential+assetForm+fun;
+
+    // 防衛資金の現在地・来月の投資アクション（シミュレーションから当該月を特定）
+    const trace = simulate();
+    let defenseNow = assumptions.defenseStart;
+    let curRow = null, nextRow = null;
+    for (let idx=0; idx<trace.length; idx++){
+      const row = trace[idx];
+      if (row.y===curYear && row.m===curMonth){ curRow = row; nextRow = trace[idx+1] || null; break; }
+      defenseNow = row.defense;
+}
+    const spotAmt = free<=0 ? 0 : (defenseNow < assumptions.defenseTarget ? Math.floor(free*0.5) : free);
+    const nextIsBonus = nextRow ? (nextRow.m===6 || nextRow.m===12) : false;
+    const nextInvestTotal = fixedInvest + spotAmt + (nextIsBonus && nextRow ? nextRow.bonus2inv : 0);
+    const nextLabel = curMonth===12 ? `${curYear+1}年1月` : `${curYear}年${curMonth+1}月`;
+
+    // カード（未精算）管理：かけぼ記録と実際のキャッシュのタイミングのズレを参考表示
+    const cardCharge = (essential+fun) * assumptions.cardRatio;
+    const prevActual = getMonthActual(curMonth===1?curYear-1:curYear, curMonth===1?12:curMonth-1);
+    const prevExpTotal = prevActual ? expTotal(prevActual) : assumptions.expNormal;
+    const prevCardCharge = prevExpTotal * assumptions.cardRatio;
+    const cardDelta = cardCharge - prevCardCharge;
+    const segs = [
+{label:'敵1', v:e1, color:'var(--e1)'},
+  {label:'敵2', v:e2, color:'var(--e2)'},
+{label:'敵3', v:e3, color:'var(--e3)'},
+{label:'敵4', v:e4x, color:'var(--e4)'},
+{label:'資産形成', v:assetForm, color:'var(--asset)'},
+{label:'娯楽・交際費', v:fun, color:'#C9CCE0'},
+      ];
+    const barTotal = Math.max(income, total+Math.max(free,0));
+    let barHtml = '';
+    segs.forEach(s=>{
+            if (s.v<=0) return;
+      const pct = (s.v/barTotal*100).toFixed(2);
+      barHtml += `<span style="width:${pct}%;background:${s.color}"></span>`;
+});
+    if (free>0){
+      const pct = (free/barTotal*100).toFixed(2);
+      barHtml += `<span class="free" style="width:${pct}%"></span>`;
+    }
+
+    const monthLabel = `${curYear}年${curMonth}月`;
+    el.innerHTML = `
+      <div class="k-nav">
+        <button id="k-prev">‹</button>
+        <div class="cur">${monthLabel}</div>
+        <button id="k-next">›</button>
+      </div>
+      <div class="k-card k-hero">
+        <div class="k-label">自由に使えるお金</div>
+        <div class="k-amt ${free<0?'neg':''}">¥${fmt(free)}</div>
+        <div class="k-sub">収入 ¥${fmt(income)} から必須支出・資産形成・娯楽交際費を差し引いた額</div>
+        <div class="k-allocbar">${barHtml}</div>
+        <div class="k-legend">
+          <span><i style="background:var(--e1)"></i>敵1 ¥${fmt(e1)}</span>
+          <span><i style="background:var(--e2)"></i>敵2 ¥${fmt(e2)}</span>
+          <span><i style="background:var(--e3)"></i>敵3 ¥${fmt(e3)}</span>
+          <span><i style="background:var(--e4)"></i>敵4 ¥${fmt(e4x)}</span>
+          <span><i style="background:var(--asset)"></i>資産形成 ¥${fmt(assetForm)}</span>
+          <span><i style="background:#C9CCE0"></i>娯楽交際 ¥${fmt(fun)}</span>
+          <span><i style="background:var(--gold)"></i>自由 ¥${fmt(Math.max(free,0))}</span>
+        </div>
+        <div class="k-spot">
+          <div class="t">翌月スポット購入の目安${defenseNow<assumptions.defenseTarget?'（防衛資金未達＝50%）':'（防衛資金達成＝100%）'}</div>
+          <div class="v">¥${fmt(spotAmt)}</div>
+        </div>
+      </div>
+      <div class="k-card">
+        <div class="k-income-row">
+          <label>この月の手取り収入</label>
+          <input type="number" id="k-income-input" value="${income}">
+        </div>
+        <div class="k-chiprow">
+          <div class="k-chip ${isJulPause?'paused':''}"><div class="t">投資（固定）</div><div class="v">¥${fmt(fixedInvest)}</div></div>
+          <div class="k-chip ${isJulPause?'paused':''}"><div class="t">貯金${isJulPause?'（休止）':''}</div><div class="v">¥${fmt(fixedSave)}</div></div>
+          <div class="k-chip ${isJulPause?'paused':''}"><div class="t">旅行積立${isJulPause?'（休止）':''}</div><div class="v">¥${fmt(fixedTravel)}</div></div>
+        </div>
+      </div>
+      <div class="k-card">
+        <div class="k-secttl">${nextLabel}の投資アクション（自動計算）</div>
+        <div class="k-nextinvest">
+          <div class="row"><span>固定投資</span><span>¥${fmt(fixedInvest)}</span></div>
+          <div class="row"><span>スポット購入（今月の自由残高から）</span><span>¥${fmt(spotAmt)}</span></div>
+          ${nextIsBonus ? `<div class="row"><span>ボーナスからの投資分</span><span>¥${fmt(nextRow?nextRow.bonus2inv:0)}</span></div>` : ''}
+          <div class="row total"><span>合計（証券口座への入金目安）</span><span>¥${fmt(nextInvestTotal)}</span></div>
+        </div>
+      </div>
+      <div class="k-card">
+        <div class="k-secttl">カード管理（参考）</div>
+        <div class="k-chiprow" style="grid-template-columns:1fr 1fr;">
+          <div class="k-chip"><div class="t">今月のカード利用（概算）</div><div class="v">¥${fmt(cardCharge)}</div></div>
+          <div class="k-chip"><div class="t">来月の引き落とし予定（概算）</div><div class="v">¥${fmt(cardCharge)}</div></div>
+        </div>
+        <p class="k-note">家計簿の記録と、実際にカードの引き落としが起こるタイミングは約1ヶ月ズレます（カード利用比率${(assumptions.cardRatio*100).toFixed(0)}%で概算）。総資産の計算には影響しません。あくまで「今月・来月に口座からいくら実際に引かれるか」の目安です。</p>
+      </div>
+      <div id="k-enemy-groups"></div>
+      <button class="k-savebtn" id="k-save-month">この月の入力を保存</button>
+      <p class="k-note">敵1〜4をタップすると費目ごとに入力できます。楽天家計簿の数字をそのまま写してください。</p>
+    `;
+
+    const groupsEl = document.getElementById('k-enemy-groups');
+    [1,2,3,4].forEach(enemy=>{
+      const meta = ENEMY_META[enemy];
+      const its = ITEMS.filter(i=>i.enemy===enemy);
+      const subtotal = its.reduce((s,it)=>s+((actual.exp&&actual.exp[it.id])||0),0);
+      const det = document.createElement('details');
+      det.className = 'k-enemy';
+      det.style.background = '#fff';
+      det.innerHTML = `
+        <summary style="border-left:4px solid ${meta.color}">
+          <span><span class="dot" style="background:${meta.color}"></span>${meta.label}（${meta.kind}）</span>
+          <span>¥${fmt(subtotal)}</span>
+        </summary>
+        <div class="items">
+          ${its.map(it=>`
+            <div class="k-item">
+              <label>${it.name}</label>
+              <input type="number" data-item="${it.id}" value="${(actual.exp&&actual.exp[it.id])||0}">
+            </div>`).join('')}
+        </div>`;
+      groupsEl.appendChild(det);
+});
+
+    document.getElementById('k-prev').onclick = ()=>{
+      curMonth--; if(curMonth<1){curMonth=12; curYear--;}
+      renderMonth();
+};
+    document.getElementById('k-next').onclick = ()=>{
+      curMonth++; if(curMonth>12){curMonth=1; curYear++;}
+      renderMonth();
+};
+    document.getElementById('k-save-month').onclick = async ()=>{
+      const key = monthKey(curYear, curMonth);
+      const incomeVal = Number(document.getElementById('k-income-input').value)||0;
+      const exp = {};
+      groupsEl.querySelectorAll('input[data-item]').forEach(inp=>{
+        const v = Number(inp.value)||0;
+        if (v!==0) exp[inp.dataset.item] = v;
+});
+      actuals[key] = {income: incomeVal, exp};
+      await saveActuals();
+      toast('保存しました');
+      renderMonth();
+      renderYear();
+};
+}
+
+  // ---------------- 年間タブ ----------------
+  function svgBarChart(){
+    const y = curYear;
+    const monthsData = [];
+    for (let m=1;m<=12;m++){
+      const actual = getMonthActual(y,m);
+      let diff;
+      if (actual){
+        const isJulPause = (y===2026&&m===7);
+        const assetForm = assumptions.fixedInvest + (isJulPause?0:assumptions.fixedSave) + (isJulPause?0:assumptions.fixedTravel);
+        diff = actual.income - expTotal(actual) - assetForm;
+      } else {
+        diff = null;
+      }
+      monthsData.push({m, diff});
+    }
+    const W=660,H=170,pad=26;
+    const known = monthsData.filter(d=>d.diff!==null).map(d=>d.diff);
+    const maxV = Math.max(50000, ...known.map(v=>Math.abs(v)));
+    const barW = (W-pad*2)/12 - 6;
+    const zeroY = H/2;
+    let bars = '';
+    monthsData.forEach((d,i)=>{
+      const x = pad + i*((W-pad*2)/12) + 3;
+      if (d.diff===null){
+        bars += `<rect x="${x}" y="${zeroY-1}" width="${barW}" height="2" fill="#DADDEE"/>`;
+      } else {
+        const h = Math.abs(d.diff)/maxV*(H/2-20);
+        const y0 = d.diff>=0 ? zeroY-h : zeroY;
+        const color = d.diff>=0 ? 'var(--gold-d)' : 'var(--neg)';
+        bars += `<rect x="${x}" y="${y0}" width="${barW}" height="${Math.max(h,2)}" rx="3" fill="${color}"/>`;
+      }
+      bars += `<text x="${x+barW/2}" y="${H-6}" font-size="9" fill="var(--sub)" text-anchor="middle">${d.m}月</text>`;
+});
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
+      <line x1="${pad}" y1="${zeroY}" x2="${W-pad}" y2="${zeroY}" stroke="#DADDEE"/>
+      ${bars}
+    </svg>`;
+}
+
+  function svgLineChart(trace, goal){
+    const W=660,H=220,padL=54,padR=16,padT=16,padB=26;
+    const years = [];
+    for (let yy=2026; yy<=2035; yy++){
+      let last = null;
+      trace.forEach(r=>{ if (r.y===yy) last = r; });
+      if (last) years.push({y:yy, total:last.total});
+    }
+    const maxV = Math.max(assumptions.goalTotal*1.15, ...years.map(d=>d.total));
+    const x = i => padL + i*((W-padL-padR)/(years.length-1));
+    const yScale = v => padT + (1-v/maxV)*(H-padT-padB);
+    let path = years.map((d,i)=>`${i===0?'M':'L'}${x(i).toFixed(1)},${yScale(d.total).toFixed(1)}`).join(' ');
+    const goalY = yScale(assumptions.goalTotal);
+    let dots = years.map((d,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${yScale(d.total).toFixed(1)}" r="3.5" fill="var(--navy)"/>`).join('');
+          let labels = years.map((d,i)=>`<text x="${x(i).toFixed(1)}" y="${H-8}" font-size="9" fill="var(--sub)" text-anchor="middle">${d.y}</text>`).join('');
+                let goalMark = '';
+    if (goal){
+      const gi = (goal.y-2026) + (goal.m-1)/12;
+      const gx = padL + gi*((W-padL-padR)/(years.length-1));
+      const gy = yScale(goal.total);
+      goalMark = `<circle cx="${gx.toFixed(1)}" cy="${gy.toFixed(1)}" r="6" fill="var(--gold)" stroke="#fff" stroke-width="2"/>
+                <text x="${gx.toFixed(1)}" y="${(gy-12).toFixed(1)}" font-size="10" font-weight="700" fill="var(--gold-d)" text-anchor="middle">${goal.y}/${goal.m}</text>`;
+}
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
+            <line x1="${padL}" y1="${goalY.toFixed(1)}" x2="${W-padR}" y2="${goalY.toFixed(1)}" stroke="var(--gold-d)" stroke-dasharray="4 4"/>
+            <text x="${padL}" y="${(goalY-5).toFixed(1)}" font-size="9" fill="var(--gold-d)">目標 ¥${fmt(assumptions.goalTotal)}</text>
+            <path d="${path}" fill="none" stroke="var(--navy)" stroke-width="2.5"/>
+            ${dots}${goalMark}${labels}
+          </svg>`;
+                                                                     }
+
+  function svgWalletChart(trace){
+        const W=660,H=190,padL=54,padR=16,padT=16,padB=26;
+    const years = [];
+    for (let yy=2026; yy<=2035; yy++){
+      let last = null;
+      trace.forEach(r=>{ if (r.y===yy) last = r; });
+      if (last) years.push(last);
+    }
+    const maxV = Math.max(...years.map(d=>Math.max(d.defense,d.invested,d.travel)));
+    const x = i => padL + i*((W-padL-padR)/(years.length-1));
+    const yScale = v => padT + (1-Math.max(v,0)/maxV)*(H-padT-padB);
+    function linePath(key){
+            return years.map((d,i)=>`${i===0?'M':'L'}${x(i).toFixed(1)},${yScale(d[key]).toFixed(1)}`).join(' ');
+                                                                         }
+    let labels = years.map((d,i)=>`<text x="${x(i).toFixed(1)}" y="${H-8}" font-size="9" fill="var(--sub)" text-anchor="middle">${d.y}</text>`).join('');
+          return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
+            <path d="${linePath('defense')}" fill="none" stroke="var(--e1)" stroke-width="2.5"/>
+            <path d="${linePath('invested')}" fill="none" stroke="var(--asset)" stroke-width="2.5"/>
+            <path d="${linePath('travel')}" fill="none" stroke="var(--e4)" stroke-width="2.5"/>
+            ${labels}
+          </svg>
+          <div class="k-legend">
+            <span><i style="background:var(--e1)"></i>防衛資金</span>
+            <span><i style="background:var(--asset)"></i>投資</span>
+            <span><i style="background:var(--e4)"></i>旅行積立</span>
+          </div>`;
+    }
+
+  function renderYear(){
+        const el = document.getElementById('tab-year');
+    const trace = simulate();
+    const goal = findGoal(trace);
+    let latest = trace[0];
+    for (const r of trace){ if (r.isActual) latest = r; }
+    const g0 = findGoalAt(0.0), g3 = findGoalAt(0.03), g5 = findGoalAt(0.05);
+    function scenRow(label, rate, g){
+            const isCurrent = Math.abs(rate - assumptions.returnRate) < 0.001;
+      return `<tr class="${isCurrent?'current':''}">
+                <td>${label}</td>
+                <td class="hi">${g ? `${g.y}/${g.m}` : '未到達'}</td>
+                <td>${g ? `${g.idx+1}ヶ月後` : '-'}</td>
+              </tr>`;
+    }
+    el.innerHTML = `
+            <div class="k-goalbox">
+              <div class="t">目標到達予想</div>
+              <div class="v">${goal ? `${goal.y}年${goal.m}月頃` : '10年以内未到達'}</div>
+        <div class="s">${goal ? `起点から約${goal.idx+1}ヶ月後・運用リターン${(assumptions.returnRate*100).toFixed(1)}%想定` : ''}</div>
+      </div>
+      <div class="k-card">
+        <div class="k-secttl">資産の内訳（財布分け・直近実績: ${latest.y}年${latest.m}月）</div>
+        <div class="k-walletrow">
+          <div class="k-wallet" style="background:var(--e1)"><div class="t">防衛資金</div><div class="v">¥${fmt(latest.defense)}</div></div>
+          <div class="k-wallet" style="background:var(--asset)"><div class="t">投資</div><div class="v">¥${fmt(latest.invested)}</div></div>
+          <div class="k-wallet" style="background:var(--e4)"><div class="t">旅行積立</div><div class="v">¥${fmt(latest.travel)}</div></div>
+        </div>
+        ${svgWalletChart(trace)}
+      </div>
+      <div class="k-card">
+        <div class="k-secttl">運用リターン別シナリオ比較</div>
+        <table class="k-scenario">
+          <tr><th>前提</th><th>到達年月</th><th>経過月数</th></tr>
+          ${scenRow('運用0%', 0.0, g0)}
+          ${scenRow('運用3%', 0.03, g3)}
+          ${scenRow('運用5%', 0.05, g5)}
+        </table>
+        <p class="k-note">ハイライトは「前提」タブで今設定している運用リターンです。</p>
+      </div>
+      <div class="k-card">
+        <div class="k-secttl">${curYear}年の月次収支差額</div>
+        ${svgBarChart()}
+      </div>
+      <div class="k-card">
+        <div class="k-secttl">資産推移（年末スナップショット）</div>
+        ${svgLineChart(trace, goal)}
+      </div>
+    `;
+}
+
+  // ---------------- 前提タブ ----------------
+  const ASSUMP_FIELDS = [
+{key:'returnRate', label:'運用リターン（年率、仮定）', type:'range', min:0, max:0.1, step:0.005, pct:true,
+        hint:'ここを動かすと到達予想がすぐ再計算されます'},
+  {key:'defenseTarget', label:'防衛資金目標', type:'number'},
+{key:'defenseStart', label:'開始防衛資金残高', type:'number'},
+{key:'investStart', label:'開始投資残高', type:'number'},
+{key:'travelStart', label:'開始旅行積立残高', type:'number'},
+{key:'baseIncome', label:'月間基本手取り（未入力月の想定）', type:'number'},
+{key:'expNormal', label:'月間支出想定（未入力月の想定）', type:'number'},
+{key:'bonus', label:'ボーナス（1回あたり・6月/12月）', type:'number'},
+{key:'fixedInvest', label:'固定投資額/月', type:'number'},
+{key:'fixedSave', label:'固定貯金額/月', type:'number'},
+{key:'fixedTravel', label:'固定旅行積立額/月', type:'number'},
+{key:'saveAfterTarget', label:'防衛資金達成後も貯金を継続', type:'toggle',
+        hint:'OFFにすると達成後は貯金分も投資へ（効果は小さい）'},
+{key:'tripYear', label:'大型旅行：発生年', type:'number'},
+{key:'tripMonth', label:'大型旅行：発生月', type:'number'},
+{key:'tripAmount', label:'大型旅行：取り崩し額', type:'number'},
+{key:'cardRatio', label:'カード利用比率（現金ベース参考値）', type:'range', min:0, max:1, step:0.05, pct:true,
+        hint:'月の支出のうちカード払いと想定する割合。カード管理カードの概算に使用'},
+{key:'goalTotal', label:'総資産目標（到達判定用）', type:'number'},
+  ];
+  function renderAssump(){
+        const el = document.getElementById('tab-assump');
+    el.innerHTML = `<div class="k-card"><div class="k-secttl">前提条件</div><div id="k-assump-list"></div></div>
+            <p class="k-note">数値を変えると「年間」タブの到達予想が自動で再計算されます。実績を入力した月は、この前提に関係なく実績が優先されます。</p>
+            <div class="k-card k-databox">
+              <div class="k-secttl">データのバックアップ・読み込み</div>
+              <p class="k-note">このアプリのデータはこの端末のブラウザ内だけに保存されます（アカウント同期なし）。機種変更や引っ越しの際は、下の「書き出す」でJSONをコピーし、新しい端末の「読み込む」に貼り付けてください。</p>
+              <button class="k-savebtn" id="k-export-btn">現在のデータを書き出す（コピー）</button>
+              <textarea id="k-import-area" placeholder="ここにJSONを貼り付けて「読み込む」を押してください"></textarea>
+              <button class="k-savebtn alt" id="k-import-btn">読み込む</button>
+            </div>`;
+    const list = document.getElementById('k-assump-list');
+    ASSUMP_FIELDS.forEach(f=>{
+      const row = document.createElement('div');
+      row.className = 'k-assump';
+      if (f.type==='range'){
+        row.innerHTML = `<label>${f.label}${f.hint?`<span class="hint">${f.hint}</span>`:''}</label>
+          <input type="range" min="${f.min}" max="${f.max}" step="${f.step}" value="${assumptions[f.key]}" data-key="${f.key}">
+          <span class="rangeval">${(assumptions[f.key]*100).toFixed(1)}%</span>`;
+        const range = row.querySelector('input');
+        const val = row.querySelector('.rangeval');
+        range.oninput = async ()=>{
+          assumptions[f.key] = Number(range.value);
+          val.textContent = (assumptions[f.key]*100).toFixed(1)+'%';
+          await saveAssumptions();
+          renderYear();
+};
+} else if (f.type==='toggle'){
+        row.innerHTML = `<label>${f.label}${f.hint?`<span class="hint">${f.hint}</span>`:''}</label>
+          <input type="checkbox" data-key="${f.key}" ${assumptions[f.key]?'checked':''} style="width:20px;height:20px;accent-color:var(--navy)">`;
+        const chk = row.querySelector('input');
+        chk.onchange = async ()=>{
+          assumptions[f.key] = chk.checked ? 1 : 0;
+          await saveAssumptions();
+          renderYear();
+};
+} else {
+        row.innerHTML = `<label>${f.label}${f.hint?`<span class="hint">${f.hint}</span>`:''}</label>
+          <input type="number" value="${assumptions[f.key]}" data-key="${f.key}">`;
+        const inp = row.querySelector('input');
+        inp.onchange = async ()=>{
+          assumptions[f.key] = Number(inp.value)||0;
+          await saveAssumptions();
+          renderYear();
+};
+}
+      list.appendChild(row);
+});
+
+    document.getElementById('k-export-btn').onclick = async ()=>{
+      const payload = JSON.stringify({assumptions, actuals});
+      try {
+        await navigator.clipboard.writeText(payload);
+        toast('コピーしました');
+} catch(e){
+        document.getElementById('k-import-area').value = payload;
+        toast('コピーできなかったため下の欄に表示しました');
+}
+};
+    document.getElementById('k-import-btn').onclick = async ()=>{
+      const raw = document.getElementById('k-import-area').value.trim();
+      if (!raw) return;
+      try {
+        const data = JSON.parse(raw);
+        if (data.assumptions) assumptions = Object.assign({}, DEFAULT_ASSUMPTIONS, data.assumptions);
+        if (data.actuals) actuals = Object.assign({}, actuals, data.actuals);
+        await saveAssumptions();
+        await saveActuals();
+        toast('読み込みました');
+        renderMonth(); renderYear(); renderAssump();
+} catch(e){
+        toast('JSONの形式が正しくありません');
+}
+};
+}
+
+  // ---------------- タブ切替 ----------------
+  document.querySelectorAll('.k-tab').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.k-tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      ['month','year','assump'].forEach(t=>{
+        document.getElementById('tab-'+t).style.display = (t===btn.dataset.tab)?'block':'none';
+});
+});
+});
+
+  loadData().then(()=>{
+    renderMonth();
+    renderYear();
+    renderAssump();
+});
+})();
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(()=>{});
+});
+}
+</script>
+</body>
+</html>
