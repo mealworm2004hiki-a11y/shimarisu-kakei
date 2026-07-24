@@ -7,9 +7,9 @@
   <meta name="robots" content="noindex, nofollow">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="しまりす家計">
+  <meta name="apple-mobile-web-app-title" content="家計">
   <link rel="manifest" href="manifest.webmanifest">
-  <title>しまりす家計ダッシュボード</title>
+  <title>家計ダッシュボード</title>
   <style>
     #kakei-root{
       --navy:#1E2761; --navy-d:#141A45; --gold:#FFC93C; --gold-d:#E8A800;
@@ -193,7 +193,7 @@
   <body>
   <div id="kakei-root">
     <div class="k-head">
-      <h1>しまりす家計ダッシュボード</h1>
+      <h1>家計ダッシュボード</h1>
       <p id="k-headsub">マネープラン v5・月次エンジン連動</p>
     </div>
     <div class="k-tabs">
@@ -263,9 +263,12 @@
   };
   // 実残高スナップショット: { "2026-07": {defense, investValue, investPrincipal, travel} }
   const DEFAULT_SNAPSHOTS = {};
+  // 月次積立額ログ: { "2026-06": 30000, "2026-07": 20000 } その月に実際に投資した額（前提タブの固定投資額とは別の実績記録）
+  const DEFAULT_INVESTLOG = {};
   // NISA使用状況: annual={ "2026":{tsumitate, growth} }, lifetimeUsed=生涯枠使用済(総), lifetimeGrowthUsed=うち成長枠
   const DEFAULT_NISA = { lifetimeUsed:0, lifetimeGrowthUsed:0, annual:{} };
   let snapshots = {};
+  let investLog = {};
   let nisa = JSON.parse(JSON.stringify(DEFAULT_NISA));
   // 買い物ログ: [{id, ym, name, amount, category, sat(1-5 or null), score(チェックリスト該当数 or null)}]
   let purchases = [];
@@ -284,6 +287,7 @@
     if (curYear === 2026 && curMonth < 7) { curYear = 2026; curMonth = 7; }
 }
   let snapY = curYear, snapM = curMonth;
+  let invLogY = curYear, invLogM = curMonth;
 
   function toast(msg){
         const t = document.getElementById('k-toast');
@@ -312,6 +316,10 @@
       const p = localStorage.getItem('kakei-purchases');
       if (p) purchases = JSON.parse(p) || [];
     } catch(e){}
+    try {
+      const il = localStorage.getItem('kakei-investlog');
+      if (il) investLog = Object.assign({}, DEFAULT_INVESTLOG, JSON.parse(il));
+    } catch(e){}
   }
   async function saveAssumptions(){
     try { localStorage.setItem('kakei-assumptions', JSON.stringify(assumptions)); } catch(e){}
@@ -327,6 +335,9 @@
   }
   async function savePurchases(){
     try { localStorage.setItem('kakei-purchases', JSON.stringify(purchases)); } catch(e){}
+  }
+  async function saveInvestLog(){
+    try { localStorage.setItem('kakei-investlog', JSON.stringify(investLog)); } catch(e){}
   }
   function latestSnapshot(){
     let key=null;
@@ -718,6 +729,39 @@
     const defMonths = monthlyExp>0 ? defenseVal/monthlyExp : 0;
     const holdOk = defMonths>=6;
 
+    function svgInvestLogChart(){
+      const W=660,H=150,padL=26,padR=14,padT=10,padB=24;
+      const months = [];
+      let iy=invLogY, im=invLogM;
+      for (let i=0;i<12;i++){
+        months.unshift({y:iy,m:im,key:monthKey(iy,im)});
+        im--; if(im<1){im=12; iy--;}
+      }
+      const vals = months.map(d=>investLog[d.key]||0);
+      const maxV = Math.max(10000, ...vals);
+      const barW = (W-padL-padR)/12 - 6;
+      let bars = '';
+      months.forEach((d,i)=>{
+        const x = padL + i*((W-padL-padR)/12) + 3;
+        const v = investLog[d.key]||0;
+        const h = v>0 ? Math.max(v/maxV*(H-padT-padB), 2) : 0;
+        const y0 = H-padB-h;
+        if (v>0) bars += `<rect x="${x}" y="${y0}" width="${barW}" height="${h}" rx="3" fill="var(--asset)"/>`;
+        bars += `<text x="${x+barW/2}" y="${H-8}" font-size="9" fill="var(--sub)" text-anchor="middle">${d.m}月</text>`;
+      });
+      return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
+        <line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#DADDEE"/>
+        ${bars}
+      </svg>`;
+    }
+    const invLogKeys = Object.keys(investLog).filter(k=>investLog[k]>0).sort().reverse();
+    const invLogListHtml = invLogKeys.length===0
+      ? `<div class="k-empty">まだ記録がありません。積立額が変わった月に、その月の実際の投資額を記録してください。</div>`
+      : invLogKeys.slice(0,24).map(k=>{
+          const [ky,km] = k.split('-').map(Number);
+          return `<div class="k-catsum"><span class="cs-name">${ky}年${km}月</span><span class="cs-val">¥${fmt(investLog[k])}</span></div>`;
+        }).join('');
+
     el.innerHTML = `
       <div class="k-goalbox">
         <div class="t">総資産 ${snap?`（実残高 ${snap.y}年${snap.m}月時点）`:'（前提からの想定）'}</div>
@@ -761,6 +805,23 @@
         <div id="snap-gain"></div>
         <button class="k-savebtn" id="k-snap-save" style="margin-top:12px;">この月の残高を記録</button>
         <p class="k-note">月1回、証券口座と銀行残高を見て打ち込むだけ。記録すると上の到達予想・下の暴落テストが実際の数字で再計算され、下のグラフに実績点が乗ります。「評価額−元本」が含み益です。</p>
+      </div>
+
+      <div class="k-card">
+        <div class="k-secttl">月次積立額の記録</div>
+        <div class="k-nav">
+          <button id="k-invlog-prev">‹</button>
+          <div class="cur">${invLogY}年${invLogM}月</div>
+          <button id="k-invlog-next">›</button>
+        </div>
+        <div class="k-income-row">
+          <label>この月に投資した額</label>
+          <input type="number" id="invlog-amount" placeholder="0">
+        </div>
+        <button class="k-savebtn" id="k-invlog-save" style="margin-top:10px;">この月の積立額を記録</button>
+        <p class="k-note">「前提」タブの固定投資額は今後の想定値、こちらは実際に入れた金額の記録です。積立額が変わるたびに、その月の実績をここに追加してください。</p>
+        ${svgInvestLogChart()}
+        <div style="margin-top:6px;">${invLogListHtml}</div>
       </div>
 
       <div class="k-card">
@@ -834,6 +895,18 @@
 
     document.getElementById('k-snap-prev').onclick = ()=>{ snapM--; if(snapM<1){snapM=12; snapY--;} renderAsset(); };
     document.getElementById('k-snap-next').onclick = ()=>{ snapM++; if(snapM>12){snapM=1; snapY++;} renderAsset(); };
+
+    document.getElementById('invlog-amount').value = investLog[monthKey(invLogY,invLogM)] || '';
+    document.getElementById('k-invlog-prev').onclick = ()=>{ invLogM--; if(invLogM<1){invLogM=12; invLogY--;} renderAsset(); };
+    document.getElementById('k-invlog-next').onclick = ()=>{ invLogM++; if(invLogM>12){invLogM=1; invLogY++;} renderAsset(); };
+    document.getElementById('k-invlog-save').onclick = async ()=>{
+      const amt = Number(document.getElementById('invlog-amount').value)||0;
+      const key = monthKey(invLogY, invLogM);
+      if (amt===0) delete investLog[key]; else investLog[key] = amt;
+      await saveInvestLog();
+      toast('積立額を記録しました');
+      renderAsset();
+    };
     document.getElementById('k-snap-save').onclick = async ()=>{
       const d=Number(document.getElementById('snap-defense').value)||0;
       const t=Number(document.getElementById('snap-travel').value)||0;
@@ -1241,7 +1314,7 @@
 });
 
     document.getElementById('k-export-btn').onclick = async ()=>{
-      const payload = JSON.stringify({assumptions, actuals, snapshots, nisa, purchases});
+      const payload = JSON.stringify({assumptions, actuals, snapshots, nisa, purchases, investLog});
       try {
         await navigator.clipboard.writeText(payload);
         toast('コピーしました');
@@ -1260,11 +1333,13 @@
         if (data.snapshots) snapshots = Object.assign({}, snapshots, data.snapshots);
         if (data.nisa) nisa = Object.assign({}, JSON.parse(JSON.stringify(DEFAULT_NISA)), data.nisa);
         if (data.purchases) purchases = data.purchases || [];
+        if (data.investLog) investLog = Object.assign({}, DEFAULT_INVESTLOG, data.investLog);
         await saveAssumptions();
         await saveActuals();
         await saveSnapshots();
         await saveNisa();
         await savePurchases();
+        await saveInvestLog();
         toast('読み込みました');
         renderMonth(); renderAsset(); renderSpend(); renderYear(); renderAssump();
 } catch(e){
