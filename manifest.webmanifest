@@ -1,6 +1,5 @@
 {
-  "name": "しまりす家計ダッシュボード",
-    "short_name": "しまりす家計",
+  "name": "家計ダッシュボード",    "short_name": "家計",
       "description": "マネープラン v5・月次エンジン連動の家計ダッシュボード",
         "start_url": "./index.html",
           "display": "standalone",
