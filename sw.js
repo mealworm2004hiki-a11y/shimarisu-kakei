@@ -1,4 +1,4 @@
-const CACHE='kakei-v5';
+const CACHE='kakei-v6';
 const ASSETS=['./','./index.html','./manifest.webmanifest','./icon.svg','./icon-maskable.svg'];
 self.addEventListener('install',e=>{
 self.skipWaiting();

@@ -30,6 +30,7 @@
   .k-tab{flex:1; text-align:center; padding:9px 4px; font-size:12.5px; font-weight:700;
     color:#B9BEE0; background:transparent; border:none; border-radius:10px 10px 0 0; cursor:pointer;}
       .k-tab.active{color:var(--navy); background:var(--bg);}
+  .k-tab-gear{flex:0 0 40px; font-size:15px;}
   .k-body{padding:18px 18px 26px;}
   .k-card{background:#fff; border-radius:14px; padding:16px 18px; margin-bottom:14px; box-shadow:0 1px 3px rgba(30,39,97,.06);}
       .k-hero{text-align:center; padding:22px 18px 18px;}
@@ -67,6 +68,25 @@
     .k-goalbox .t{font-size:11px; color:#B9BEE0; font-weight:700;}
     .k-goalbox .v{font-size:22px; font-weight:800; margin-top:4px; color:var(--gold);}
   .k-goalbox .s{font-size:11px; color:#B9BEE0; margin-top:2px;}
+  .k-projhero{text-align:center; padding:6px 4px 14px;}
+  .k-projhero .lab{font-size:12.5px; color:var(--sub); font-weight:700;}
+  .k-projhero .amt{font-size:34px; font-weight:800; color:var(--asset); margin:6px 0 2px; letter-spacing:-.01em;}
+  .k-projhero .amt .man{font-size:16px; color:var(--sub); font-weight:700; margin-left:4px;}
+  .k-projhero .sub{font-size:11px; color:var(--sub);}
+  .k-projtable{width:100%; border-collapse:collapse; font-size:13px; margin-top:6px; table-layout:fixed;}
+  .k-projtable th,.k-projtable td{padding:9px 6px; border-bottom:1px solid #EDEEF5;}
+  .k-projtable th{font-size:10px; color:var(--sub); font-weight:700; text-align:right; letter-spacing:.02em;}
+  .k-projtable th:first-child{text-align:left;}
+  .k-projtable td{text-align:right; font-weight:800; color:var(--asset); white-space:nowrap;}
+  .k-projtable td:first-child{text-align:left; font-weight:700; color:var(--ink); font-size:12px;}
+  .k-projtable td .yr{display:block; font-size:9.5px; color:var(--sub); font-weight:600; margin-top:1px;}
+  .k-projtable td.low{color:var(--sub); font-weight:700;}
+  .k-projtable tbody tr:last-child td{border-bottom:none;}
+  .k-projtable tr.hl td{background:#F3F1FC;}
+  .k-projtable tr.hl td:first-child{border-left:3px solid var(--asset); padding-left:9px;}
+  .k-projgoal{display:flex; align-items:center; justify-content:space-between; gap:8px; background:var(--e4-l); color:#1c7a44; border-radius:10px; padding:11px 14px; margin-top:12px; font-weight:700; font-size:12.5px;}
+  .k-projgoal.miss{background:var(--e1-l); color:#b23238;}
+  .k-projgoal .v{font-size:15px; font-weight:800; white-space:nowrap;}
     .k-secttl{font-size:12.5px; font-weight:800; color:var(--navy); margin:2px 0 10px;}
   .k-assump{display:flex; align-items:center; justify-content:space-between; padding:9px 0; border-top:1px solid #F1F2F7;}
   .k-assump:first-child{border-top:none;}
@@ -87,6 +107,9 @@
   .k-nextinvest .row{display:flex; justify-content:space-between; font-size:12px; padding:6px 0; border-top:1px solid #F1F2F7; color:var(--ink);}
   .k-nextinvest .row:first-child{border-top:none;}
   .k-nextinvest .row.total{font-weight:800; color:var(--navy); font-size:13.5px; border-top:2px solid var(--gold); margin-top:4px; padding-top:8px;}
+  .k-overrow{display:flex; justify-content:space-between; align-items:baseline; font-size:12.5px; padding:6px 0; border-top:1px solid #F1F2F7; color:var(--ink);}
+  .k-overrow:first-child{border-top:none;}
+  .k-overrow .v{font-weight:800; color:var(--navy);}
   .k-walletrow{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px;}
   .k-wallet{border-radius:10px; padding:10px 8px; text-align:center; color:#fff;}
     .k-wallet .t{font-size:10px; opacity:.85; font-weight:700;}
@@ -196,20 +219,18 @@
   <div id="kakei-root">
     <div class="k-head">
       <h1>家計ダッシュボード</h1>
-      <p id="k-headsub">マネープラン v5・月次エンジン連動</p>
+      <p id="k-headsub">今月 / 使う / 資産 のシンプル3タブ</p>
     </div>
     <div class="k-tabs">
       <button class="k-tab active" data-tab="month">今月</button>
-      <button class="k-tab" data-tab="asset">資産</button>
       <button class="k-tab" data-tab="spend">使う</button>
-      <button class="k-tab" data-tab="year">年間</button>
-      <button class="k-tab" data-tab="assump">前提</button>
+      <button class="k-tab" data-tab="asset">資産</button>
+      <button class="k-tab k-tab-gear" data-tab="assump" aria-label="設定">⚙</button>
     </div>
     <div class="k-body">
       <div id="tab-month"></div>
-      <div id="tab-asset" style="display:none"></div>
       <div id="tab-spend" style="display:none"></div>
-      <div id="tab-year" style="display:none"></div>
+      <div id="tab-asset" style="display:none"></div>
       <div id="tab-assump" style="display:none"></div>
     </div>
   </div>
@@ -252,7 +273,7 @@
   const DEFAULT_ASSUMPTIONS = {
         defenseTarget:0, defenseStart:0, investStart:0, travelStart:0,
               baseIncome:0, bonus:0, expNormal:0, expJul26:0,
-              fixedInvest:0, fixedSave:0, fixedTravel:0, returnRate:0.0,
+              fixedInvest:0, fixedSave:0, fixedTravel:0, returnRate:0.05,
               tripYear:2028, tripMonth:6, tripAmount:0, saveAfterTarget:1, goalTotal:0,
               targetYear:2030, targetMonth:11, discretionaryBudget:0,
           };
@@ -280,6 +301,8 @@
   const SPEND_CATS = ['服・美容','ゲーム・娯楽','ガジェット','本・学び','その他モノ'];
 
   const fmt = n => Math.round(n).toLocaleString('ja-JP');
+  // 大きな金額を「◯◯◯万」で読みやすく（1万円未満はそのまま円）
+  const fmtMan = n => n>=10000 ? Math.round(n/10000).toLocaleString('ja-JP')+'万' : fmt(n);
   const monthKey = (y,m) => `${y}-${String(m).padStart(2,'0')}`;
 
   // 旧スナップショット（防衛資金・旅行積立・銀行預金の3分割）を現金・預金1本に寄せる
@@ -429,7 +452,8 @@
 
   // 資産は「現金・預金 / ポイント / 投資信託」の3つで追跡する。
   // 生活防衛資金も旅行貯金も現金・預金の一部なので、財布としては分けない。
-  function simulate(overrideReturn, startOverride){
+  function simulate(overrideReturn, startOverride, months){
+        months = months || 120;
         let cash, invested, points, y, m;
     if (startOverride){
       y = startOverride.y; m = startOverride.m;
@@ -443,7 +467,7 @@
     const returnRate = (overrideReturn===undefined) ? assumptions.returnRate : overrideReturn;
     const mret = Math.pow(1+returnRate, 1/12) - 1;
     const trace = [];
-    for (let i=0;i<120;i++){
+    for (let i=0;i<months;i++){
       const isBonus = (m===6||m===12);
       const actual = getMonthActual(y,m);
       const flow = monthFlow(y,m);
@@ -481,13 +505,22 @@
 }
 
   // 実残高スナップショットがあればそこを起点に、無ければ前提から投影
-  function anchoredProjection(rate){
+  function anchoredProjection(rate, months){
     const snap = latestSnapshot();
     if (snap){
       return simulate(rate, {y:snap.y, m:snap.m,
-        cash:snap.cash||0, invested:snap.investValue||0, points:snap.points||0});
+        cash:snap.cash||0, invested:snap.investValue||0, points:snap.points||0}, months);
     }
-    return simulate(rate);
+    return simulate(rate, undefined, months);
+  }
+  // 指定した「N年後」の年月に最も近い投影行を返す（無ければ末尾）
+  function projAtYearsAhead(trace, years){
+    const startY = trace[0] ? trace[0].y : curYear;
+    const startM = trace[0] ? trace[0].m : curMonth;
+    let ty = startY + years, tm = startM;
+    let best = trace[trace.length-1] || null;
+    for (const r of trace){ if (r.y===ty && r.m===tm){ best = r; break; } }
+    return best;
   }
   // 「今の総資産」= 直近スナップショットの合計。無ければ投影上の現在月。
   function currentTotal(){
@@ -528,48 +561,47 @@
     const manualExp = actual.expTotalManual||0;
     const usingManual = manualExp>0;
     const investIsActual = flow.hasLog;
-    // 資産形成率＝収入のうち投資・貯金・旅行貯金に回した割合。資産形成のいちばん効く指標。
-    const saveRate = income>0 ? flow.assetForm/income*100 : 0;
-    const investRate = income>0 ? fixedInvest/income*100 : 0;
-
-    // 敵1〜4の内訳（おまけ・使いすぎ分析用。支出合計の計算には使わない）
-    const e1 = enemySubtotal(actual,1,false), e2 = enemySubtotal(actual,2,false),
-          e3 = enemySubtotal(actual,3,false), e4x = enemySubtotal(actual,4,true);
-    const hobby = (actual.exp&&actual.exp.hobby)||0, social=(actual.exp&&actual.exp.social)||0;
-    const catExpense = e1+e2+e3+e4x+hobby+social;
-
     const total = livingExpense+fixedInvest+fixedSave+fixedTravel;
 
-    // 現金・預金の現在地・来月の投資アクション（シミュレーションから当該月を特定）
-    const trace = simulate();
-    let defenseNow = (assumptions.defenseStart||0)+(assumptions.travelStart||0);
-    let curRow = null, nextRow = null;
-    for (let idx=0; idx<trace.length; idx++){
-      const row = trace[idx];
-      if (row.y===curYear && row.m===curMonth){ curRow = row; nextRow = trace[idx+1] || null; break; }
-      defenseNow = row.cash;
-}
-    const spotAmt = free<=0 ? 0 : (defenseNow < assumptions.defenseTarget ? Math.floor(free*0.5) : free);
-    const nextIsBonus = nextRow ? (nextRow.m===6 || nextRow.m===12) : false;
-    const nextInvestTotal = fixedInvest + spotAmt + (nextIsBonus && nextRow ? nextRow.bonus2inv : 0);
-    const nextLabel = curMonth===12 ? `${curYear+1}年1月` : `${curYear}年${curMonth+1}月`;
-
+    // 自由に使えるお金の内訳バー
     const segs = [
-{label:'生活費', v:livingExpense, color:'#9AA0BD'},
-{label:'投資', v:fixedInvest, color:'var(--asset)'},
-{label:'貯金', v:fixedSave, color:'var(--bank)'},
-{label:'旅行貯金', v:fixedTravel, color:'var(--e4)'},
-      ];
-    const barTotal = Math.max(income, total+Math.max(free,0));
+      {label:'生活費', v:livingExpense, color:'#9AA0BD'},
+      {label:'投資', v:fixedInvest, color:'var(--asset)'},
+      {label:'貯金', v:fixedSave, color:'var(--bank)'},
+      {label:'旅行貯金', v:fixedTravel, color:'var(--e4)'},
+    ];
+    const barTotal = Math.max(income, total+Math.max(free,0), 1);
     let barHtml = '';
     segs.forEach(s=>{
-            if (s.v<=0) return;
-      const pct = (s.v/barTotal*100).toFixed(2);
-      barHtml += `<span style="width:${pct}%;background:${s.color}"></span>`;
-});
-    if (free>0){
-      const pct = (free/barTotal*100).toFixed(2);
-      barHtml += `<span class="free" style="width:${pct}%"></span>`;
+      if (s.v<=0) return;
+      barHtml += `<span style="width:${(s.v/barTotal*100).toFixed(2)}%;background:${s.color}"></span>`;
+    });
+    if (free>0) barHtml += `<span class="free" style="width:${(free/barTotal*100).toFixed(2)}%"></span>`;
+
+    // ---- 使いすぎ分析：今月の生活費 vs 直近の平均 ----
+    const curK = monthKey(curYear, curMonth);
+    const histKeys = Object.keys(actuals).filter(k=>k<curK).sort();
+    const recentExps = histKeys.slice(-6)
+      .map(k=>{ const [y,m]=k.split('-').map(Number); return monthFlow(y,m).livingExpense; })
+      .filter(v=>v>0);
+    const avgExp = recentExps.length ? recentExps.reduce((a,b)=>a+b,0)/recentExps.length : 0;
+    const hasCur = (manualExp>0 || flow.hasActual);
+    let overuseHtml;
+    if (!hasCur){
+      overuseHtml = `<div class="k-empty">この月の「支出合計」を下で入力すると、直近の平均と比べて使いすぎかどうかを表示します。</div>`;
+    } else if (avgExp<=0){
+      overuseHtml = `<div class="k-empty">まだ比較できる過去の月がありません。何ヶ月か記録すると、平均との差が出せます。</div>`;
+    } else {
+      const diff = livingExpense - avgExp;
+      const pctOver = avgExp>0 ? diff/avgExp*100 : 0;
+      const cls = pctOver>=10 ? 'bad' : (pctOver<=-10 ? 'good' : '');
+      const msg = pctOver>=10 ? `直近${recentExps.length}ヶ月の平均より <b>¥${fmt(Math.abs(diff))}（${pctOver.toFixed(0)}%）多め</b>です。特別な出費が無かったか、今月の変動費を振り返ってみましょう。`
+        : pctOver<=-10 ? `直近${recentExps.length}ヶ月の平均より <b>¥${fmt(Math.abs(diff))}（${Math.abs(pctOver).toFixed(0)}%）少なく</b>抑えられています。いい調子です。`
+        : `直近${recentExps.length}ヶ月の平均とほぼ同じペース（差 ${diff>=0?'+':'−'}¥${fmt(Math.abs(diff))}）。いつも通りです。`;
+      overuseHtml = `
+        <div class="k-overrow"><span>今月の生活費</span><span class="v">¥${fmt(livingExpense)}</span></div>
+        <div class="k-overrow"><span>直近${recentExps.length}ヶ月の平均</span><span class="v">¥${fmt(avgExp)}</span></div>
+        <div class="k-verdict ${cls}" style="${cls===''?'background:var(--bg);color:var(--sub);':''}">${msg}</div>`;
     }
 
     const monthLabel = `${curYear}年${curMonth}月`;
@@ -580,9 +612,9 @@
         <button id="k-next">›</button>
       </div>
       <div class="k-card k-hero">
-        <div class="k-label">自由に使えるお金</div>
+        <div class="k-label">今月 自由に使えるお金</div>
         <div class="k-amt ${free<0?'neg':''}">¥${fmt(free)}</div>
-        <div class="k-sub">収入 ¥${fmt(income)} から生活費・投資・貯金・旅行貯金を差し引いた額</div>
+        <div class="k-sub">収入 ¥${fmt(income)} − 生活費・投資・貯金・旅行貯金</div>
         <div class="k-allocbar">${barHtml}</div>
         <div class="k-legend">
           <span><i style="background:#9AA0BD"></i>生活費 ¥${fmt(livingExpense)}</span>
@@ -591,29 +623,11 @@
           <span><i style="background:var(--e4)"></i>旅行貯金 ¥${fmt(fixedTravel)}</span>
           <span><i style="background:var(--gold)"></i>自由 ¥${fmt(Math.max(free,0))}</span>
         </div>
-        <div class="k-spot">
-          <div class="t">翌月スポット購入の目安${defenseNow<assumptions.defenseTarget?'（防衛資金未達＝50%）':'（防衛資金達成＝100%）'}</div>
-          <div class="v">¥${fmt(spotAmt)}</div>
-        </div>
       </div>
       <div class="k-card">
-        <div class="k-secttl">今月の資産形成率</div>
-        <div class="k-gauge">
-          <div class="g-top"><span class="g-lab">資産形成率（投資＋貯金＋旅行貯金）</span>
-            <span class="g-val"><b>${saveRate.toFixed(1)}%</b> ／ ¥${fmt(flow.assetForm)}</span></div>
-          <div class="g-track"><div class="g-fill lifetime" style="width:${Math.min(100,saveRate)}%"></div></div>
-        </div>
-        <div class="k-gauge" style="margin-bottom:4px;">
-          <div class="g-top"><span class="g-lab">うち投資に回した率</span>
-            <span class="g-val"><b>${investRate.toFixed(1)}%</b> ／ ¥${fmt(fixedInvest)}</span></div>
-          <div class="g-track"><div class="g-fill growth" style="width:${Math.min(100,investRate)}%"></div></div>
-        </div>
-        <div class="k-verdict ${saveRate>=25?'good':(saveRate>=15?'':'bad')}" style="${saveRate>=15&&saveRate<25?'background:var(--e3-l);color:#9a6a00;':''}">${
-          saveRate>=25 ? `手取りの${saveRate.toFixed(0)}%を資産形成に回せています。この率を維持できるかが、目標到達スピードをいちばん左右します。`
-          : saveRate>=15 ? `手取りの${saveRate.toFixed(0)}%を資産形成に回しています。悪くないペース。あと数%上げられないか、生活費の固定費側を見てみましょう。`
-          : `資産形成に回せているのは手取りの${saveRate.toFixed(0)}%です。収入を増やすより、まず固定費（敵1）を1つ削るほうが即効性があります。`
-        }</div>
-        <p class="k-note">貯蓄率は資産形成でいちばん効くレバーです。運用リターンは自分で決められませんが、この率は自分で決められます。</p>
+        <div class="k-secttl">使いすぎ分析</div>
+        ${overuseHtml}
+        <p class="k-note">「支出合計」から投資・貯金・旅行貯金を除いた<b>生活費</b>を、直近数ヶ月の平均と比べています。内訳を細かく入力しなくても、使いすぎの傾向がわかります。</p>
       </div>
       <div class="k-card">
         <div class="k-income-row">
@@ -625,82 +639,38 @@
           <input type="number" id="k-exptotal-input" value="${manualExp||''}" placeholder="0">
         </div>
         <p class="k-note" style="margin:-2px 0 12px;">${usingManual
-          ? `支出合計 ¥${fmt(manualExp)} には投資額 ¥${fmt(fixedInvest)}${investIsActual?'（実績記録）':'（固定投資額の想定）'} が含まれている前提で、生活費 ¥${fmt(livingExpense)} を自動で逆算しています。投資額を正確にしたい場合は「資産」タブの「今月の積立記録」に実績を入れてください。`
+          ? `支出合計 ¥${fmt(manualExp)} から投資額 ¥${fmt(fixedInvest)}${investIsActual?'（実績）':'（想定）'} を差し引いて、生活費 ¥${fmt(livingExpense)} を自動計算しています。`
           : '支出合計を入れると、そこから投資額（自動判定）を差し引いて生活費を計算します。'}</p>
         <div class="k-chiprow">
-          <div class="k-chip ${isJulPause?'paused':''}"><div class="t">投資${investIsActual?'（実績）':'（固定想定）'}</div><div class="v">¥${fmt(fixedInvest)}</div></div>
-          <div class="k-chip ${isJulPause?'paused':''}"><div class="t">貯金${investIsActual?'（実績）':(isJulPause?'（休止）':'（固定想定）')}</div><div class="v">¥${fmt(fixedSave)}</div></div>
-          <div class="k-chip ${isJulPause?'paused':''}"><div class="t">旅行貯金${investIsActual?'（実績）':(isJulPause?'（休止）':'（固定想定）')}</div><div class="v">¥${fmt(fixedTravel)}</div></div>
+          <div class="k-chip ${isJulPause?'paused':''}"><div class="t">投資${investIsActual?'（実績）':'（想定）'}</div><div class="v">¥${fmt(fixedInvest)}</div></div>
+          <div class="k-chip ${isJulPause?'paused':''}"><div class="t">貯金${investIsActual?'（実績）':(isJulPause?'（休止）':'（想定）')}</div><div class="v">¥${fmt(fixedSave)}</div></div>
+          <div class="k-chip ${isJulPause?'paused':''}"><div class="t">旅行貯金${investIsActual?'（実績）':(isJulPause?'（休止）':'（想定）')}</div><div class="v">¥${fmt(fixedTravel)}</div></div>
         </div>
+        <button class="k-savebtn" id="k-save-month" style="margin-top:14px;">この月の入力を保存</button>
+        <p class="k-note">楽天家計簿の「収入」と「支出合計」を写すだけでOK。</p>
       </div>
-      <div class="k-card">
-        <div class="k-secttl">${nextLabel}の投資アクション（自動計算）</div>
-        <div class="k-nextinvest">
-          <div class="row"><span>固定投資</span><span>¥${fmt(fixedInvest)}</span></div>
-          <div class="row"><span>スポット購入（今月の自由残高から）</span><span>¥${fmt(spotAmt)}</span></div>
-          ${nextIsBonus ? `<div class="row"><span>ボーナスからの投資分</span><span>¥${fmt(nextRow?nextRow.bonus2inv:0)}</span></div>` : ''}
-          <div class="row total"><span>合計（証券口座への入金目安）</span><span>¥${fmt(nextInvestTotal)}</span></div>
-        </div>
-      </div>
-      <details class="k-enemy" style="background:#fff;margin-bottom:10px;">
-        <summary style="border-left:4px solid var(--sub)"><span>使いすぎ分析（おまけ・任意）</span><span style="font-size:11px;color:var(--sub)">${catExpense>0?`内訳合計 ¥${fmt(catExpense)}`:'未入力'}</span></summary>
-        <div style="padding:2px 2px 4px;">
-          <p class="k-note" style="padding:0 12px;">「今月ちょっと使いすぎたかも」と思ったときに、どこに使ったか敵1〜4に振り分けて分析するための欄です。入力しなくても支出合計だけでアプリは問題なく使えます。</p>
-          <div id="k-enemy-groups"></div>
-        </div>
-      </details>
-      <button class="k-savebtn" id="k-save-month">この月の入力を保存</button>
-      <p class="k-note">楽天家計簿の「収入」と「支出合計」を写すだけでOK。内訳まで入れるかは任意です。</p>
     `;
-
-    const groupsEl = document.getElementById('k-enemy-groups');
-    [1,2,3,4].forEach(enemy=>{
-      const meta = ENEMY_META[enemy];
-      const its = ITEMS.filter(i=>i.enemy===enemy);
-      const subtotal = its.reduce((s,it)=>s+((actual.exp&&actual.exp[it.id])||0),0);
-      const det = document.createElement('details');
-      det.className = 'k-enemy';
-      det.style.background = '#fff';
-      det.innerHTML = `
-        <summary style="border-left:4px solid ${meta.color}">
-          <span><span class="dot" style="background:${meta.color}"></span>${meta.label}（${meta.kind}）</span>
-          <span>¥${fmt(subtotal)}</span>
-        </summary>
-        <div class="items">
-          ${its.map(it=>`
-            <div class="k-item">
-              <label>${it.name}</label>
-              <input type="number" data-item="${it.id}" value="${(actual.exp&&actual.exp[it.id])||0}">
-            </div>`).join('')}
-        </div>`;
-      groupsEl.appendChild(det);
-});
 
     document.getElementById('k-prev').onclick = ()=>{
       curMonth--; if(curMonth<1){curMonth=12; curYear--;}
       renderMonth();
-};
+    };
     document.getElementById('k-next').onclick = ()=>{
       curMonth++; if(curMonth>12){curMonth=1; curYear++;}
       renderMonth();
-};
+    };
     document.getElementById('k-save-month').onclick = async ()=>{
       const key = monthKey(curYear, curMonth);
       const incomeVal = Number(document.getElementById('k-income-input').value)||0;
-      const exp = {};
-      groupsEl.querySelectorAll('input[data-item]').forEach(inp=>{
-        const v = Number(inp.value)||0;
-        if (v!==0) exp[inp.dataset.item] = v;
-});
       const expTotalManual = Number(document.getElementById('k-exptotal-input').value)||0;
-      actuals[key] = {income: incomeVal, exp, expTotalManual};
+      const prevExp = (actuals[key] && actuals[key].exp) || {};
+      actuals[key] = {income: incomeVal, exp: prevExp, expTotalManual};
       await saveActuals();
       toast('保存しました');
       renderMonth();
-      renderYear();
       renderAsset();
-};
-}
+    };
+  }
 
   // ---------------- 資産タブ ----------------
   function svgPlanVsActual(){
@@ -747,6 +717,39 @@
     </div>`;
   }
 
+  // 「このまま積み立てたら」の資産予測グラフ（中心利回り＋控えめ利回りの2本＋目標線）
+  function svgProjChart(mainTrace, lowTrace, goalTotal, years){
+    const W=660,H=210,padL=54,padR=14,padT=16,padB=26;
+    const pts = k => ({main:projAtYearsAhead(mainTrace,k).total, low:projAtYearsAhead(lowTrace,k).total});
+    const data = [];
+    for (let k=0;k<=years;k++){ const p=pts(k); data.push({k, main:p.main, low:p.low}); }
+    const startY = mainTrace[0] ? mainTrace[0].y : curYear;
+    const maxV = Math.max(goalTotal*1.05, ...data.map(d=>d.main), 1);
+    const x = k => padL + (k/years)*(W-padL-padR);
+    const yS = v => padT + (1-Math.max(v,0)/maxV)*(H-padT-padB);
+    const path = key => data.map((d,i)=>`${i===0?'M':'L'}${x(d.k).toFixed(1)},${yS(d[key]).toFixed(1)}`).join(' ');
+    const goalY = yS(goalTotal);
+    let labels='';
+    for (let k=0;k<=years;k+=5){ labels += `<text x="${x(k).toFixed(1)}" y="${H-8}" font-size="9" fill="var(--sub)" text-anchor="middle">${startY+k}</text>`; }
+    // 5/10/20年後の目印ドット（中心線）
+    let dots='';
+    [5,10,20].filter(k=>k<=years).forEach(k=>{
+      const v=projAtYearsAhead(mainTrace,k).total;
+      dots += `<circle cx="${x(k).toFixed(1)}" cy="${yS(v).toFixed(1)}" r="4" fill="var(--navy)" stroke="#fff" stroke-width="1.5"/>`;
+    });
+    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
+      ${goalTotal>0?`<line x1="${padL}" y1="${goalY.toFixed(1)}" x2="${W-padR}" y2="${goalY.toFixed(1)}" stroke="var(--gold-d)" stroke-dasharray="4 4"/>
+      <text x="${padL}" y="${(goalY-5).toFixed(1)}" font-size="9" fill="var(--gold-d)">目標 ¥${fmtMan(goalTotal)}</text>`:''}
+      <path d="${path('low')}" fill="none" stroke="#C3C7DE" stroke-width="2" stroke-dasharray="5 3"/>
+      <path d="${path('main')}" fill="none" stroke="var(--asset)" stroke-width="2.6"/>
+      ${dots}${labels}
+    </svg>
+    <div class="k-legend">
+      <span><i style="background:var(--asset)"></i>想定利回り（オルカン）</span>
+      <span><i style="background:#C3C7DE"></i>控えめ利回り</span>
+    </div>`;
+  }
+
   function renderAsset(){
     const el = document.getElementById('tab-asset');
     const snap = latestSnapshot();
@@ -765,6 +768,30 @@
     const nowInvest = simCur ? simCur.investAction : assumptions.fixedInvest;
     const onTrack = req.alreadyThere || nowInvest >= req.pmt;
 
+    // ---- 資産予測（オルカンをこのまま積み立て続けたら）----
+    const HORIZON = 20; // 年
+    const projMain = anchoredProjection(undefined, HORIZON*12); // 想定利回り（assumptions.returnRate＝オルカン想定）
+    const projLow  = anchoredProjection(0.03, HORIZON*12);      // 控えめ 3%
+    const projRatePct = (assumptions.returnRate*100).toFixed(1).replace(/\.0$/,'');
+    const projStartY = projMain[0] ? projMain[0].y : curYear;
+    const proj5  = projAtYearsAhead(projMain,5).total;
+    const proj10 = projAtYearsAhead(projMain,10).total;
+    const proj15 = projAtYearsAhead(projMain,15).total;
+    const proj20 = projAtYearsAhead(projMain,20).total;
+    const projLow5  = projAtYearsAhead(projLow,5).total;
+    const projLow10 = projAtYearsAhead(projLow,10).total;
+    const projLow15 = projAtYearsAhead(projLow,15).total;
+    const projLow20 = projAtYearsAhead(projLow,20).total;
+    const projGoalMain = findGoal(projMain);
+    // 表の行データ（時点 / 想定利回り / 控えめ利回り）
+    const projRows = [
+      {lab:'今',        y:projStartY,    main:cur,     low:cur},
+      {lab:'5年後',     y:projStartY+5,  main:proj5,   low:projLow5},
+      {lab:'10年後',    y:projStartY+10, main:proj10,  low:projLow10, hl:true},
+      {lab:'15年後',    y:projStartY+15, main:proj15,  low:projLow15},
+      {lab:'20年後',    y:projStartY+20, main:proj20,  low:projLow20},
+    ];
+
     // 資産の3区分。スナップショットがあれば実残高、無ければシミュレーション値。
     const investVal = snap ? (snap.investValue||0) : (simCur?simCur.invested:0);
     const cashVal   = snap ? (snap.cash||0)        : (simCur?simCur.cash:0);
@@ -781,45 +808,6 @@
     const cashShare   = compTotal>0 ? cashVal/compTotal*100 : 0;
     const pointShare  = compTotal>0 ? pointsVal/compTotal*100 : 0;
 
-    // 前回スナップショットからの増減を「自分で入れた分」と「相場で増えた分」に分解する
-    const prevSnap = prevSnapshot();
-    let deltaBox = '';
-    if (snap && prevSnap){
-      const dTotal  = snapTotal(snap) - snapTotal(prevSnap);
-      const dInvest = (snap.investValue||0) - (prevSnap.investValue||0);
-      const dCash   = (snap.cash||0)   - (prevSnap.cash||0);
-      const dPoints = (snap.points||0) - (prevSnap.points||0);
-      // 期間中に記録した入金額（prevSnapの翌月〜snapの月）
-      let contributed = 0, contribInvest = 0;
-      Object.keys(investLog).sort().forEach(k=>{
-        if (k > prevSnap.key && k <= snap.key){
-          const l = migrateLog(investLog[k]);
-          contributed += logTotal(l); contribInvest += l.invest;
-        }
-      });
-      const marketGain = dInvest - contribInvest; // 投資の増分のうち入金でない部分＝運用損益
-      const hasLogInRange = contributed>0;
-      deltaBox = `
-        <div class="k-card">
-          <div class="k-secttl">前回記録（${prevSnap.y}年${prevSnap.m}月）からの増減</div>
-          <div class="k-gainbox ${dTotal>=0?'plus':'minus'}" style="margin-top:0;">
-            <span class="t">総資産の変化</span>
-            <span class="v">${dTotal>=0?'+':'−'}¥${fmt(Math.abs(dTotal))}</span>
-          </div>
-          <div class="k-catsum" style="margin-top:10px;"><span class="cs-name">投資信託</span><span class="cs-val" style="color:${dInvest>=0?'var(--e4)':'var(--neg)'}">${dInvest>=0?'+':'−'}¥${fmt(Math.abs(dInvest))}</span></div>
-          <div class="k-catsum"><span class="cs-name">現金・預金</span><span class="cs-val" style="color:${dCash>=0?'var(--e4)':'var(--neg)'}">${dCash>=0?'+':'−'}¥${fmt(Math.abs(dCash))}</span></div>
-          <div class="k-catsum"><span class="cs-name">ポイント</span><span class="cs-val" style="color:${dPoints>=0?'var(--e4)':'var(--neg)'}">${dPoints>=0?'+':'−'}¥${fmt(Math.abs(dPoints))}</span></div>
-          ${hasLogInRange ? `
-          <div class="k-secttl" style="margin:16px 0 8px;">投資の増分の中身</div>
-          <div class="k-pacegrid" style="margin-top:0;">
-            <div class="k-pacecell"><div class="t">自分で入れた分（入金）</div><div class="v">¥${fmt(contribInvest)}</div></div>
-            <div class="k-pacecell ${marketGain>=0?'good':'bad'}"><div class="t">相場で増えた分（運用損益）</div><div class="v">${marketGain>=0?'+':'−'}¥${fmt(Math.abs(marketGain))}</div></div>
-          </div>
-          <p class="k-note">資産が増えたのは自分の入金か相場か、を切り分けた数字です。相場は自分で決められないので、<b>入金の欄が計画どおり積み上がっているか</b>だけを見てください。</p>
-          ` : `<p class="k-note">この期間の積立記録がまだありません。下の「今月の積立記録」に投資・貯金・旅行貯金を入れると、増えた分を「自分の入金」と「相場の値動き」に分けて表示できます。</p>`}
-        </div>`;
-    }
-
     // 投資元本の自動計算候補：開始投資残高 + それまでに記録した投資額の合計
     function suggestedPrincipalFor(y,m){
       let s = assumptions.investStart||0;
@@ -831,37 +819,20 @@
     }
     const suggestedPrincipal = suggestedPrincipalFor(snapY, snapM);
 
-    // NISA
-    const yKey = String(curYear);
-    const an = nisa.annual[yKey] || {tsumitate:0, growth:0};
-    const anTotal = (an.tsumitate||0)+(an.growth||0);
-
-    function gaugeHtml(cls, used, cap, lab){
-      const p = cap>0 ? Math.min(100, used/cap*100) : 0;
-      const warn = used>cap ? ' warn' : '';
-      return `<div class="k-gauge">
-        <div class="g-top"><span class="g-lab">${lab}</span>
-          <span class="g-val"><b>¥${fmt(used)}</b> / ¥${fmt(cap)}　残 ¥${fmt(Math.max(0,cap-used))}</span></div>
-        <div class="g-track"><div class="g-fill ${cls}${warn}" style="width:${p}%"></div></div>
-      </div>`;
-    }
-
-    const stressRows = [0.2,0.3,0.4].map(d=>{
-      const after = investVal*(1-d);
-      const loss = investVal*d;
-      const newTotal = cashVal+pointsVal+after;
-      const vsPrincipal = principal>0 ? after-principal : null;
-      const pcell = vsPrincipal===null ? '<td>—</td>'
-        : (vsPrincipal>=0 ? `<td class="ok">+¥${fmt(vsPrincipal)}</td>` : `<td class="ng">−¥${fmt(Math.abs(vsPrincipal))}</td>`);
-      return `<tr>
-        <td class="drop">−${(d*100).toFixed(0)}%</td>
-        <td>¥${fmt(after)}<br><span style="font-size:9.5px;color:var(--sub)">(−¥${fmt(loss)})</span></td>
-        <td class="total">¥${fmt(newTotal)}</td>
-        ${pcell}
-      </tr>`;
-    }).join('');
     const defMonths = monthlyExp>0 ? cashVal/monthlyExp : 0;
-    const holdOk = defMonths>=6;
+
+    // 翌月の投資アクション（今月の自由残高からのスポット購入込み）
+    let nextRow=null, defenseNow=(assumptions.defenseStart||0)+(assumptions.travelStart||0);
+    for(let idx=0;idx<simTrace.length;idx++){
+      const row=simTrace[idx];
+      if(row.y===curYear&&row.m===curMonth){ nextRow=simTrace[idx+1]||null; break; }
+      defenseNow=row.cash;
+    }
+    const mflow = monthFlow(curYear,curMonth);
+    const spotAmt = mflow.free<=0 ? 0 : (defenseNow<assumptions.defenseTarget ? Math.floor(mflow.free*0.5) : mflow.free);
+    const nextIsBonus = nextRow ? (nextRow.m===6||nextRow.m===12) : false;
+    const nextInvestTotal = mflow.investAmt + spotAmt + (nextIsBonus&&nextRow?nextRow.bonus2inv:0);
+    const nextLabel = curMonth===12 ? `${curYear+1}年1月` : `${curYear}年${curMonth+1}月`;
 
     // 直近12ヶ月の積立記録を投資・貯金・旅行貯金の積み上げ棒で表示
     function svgInvestLogChart(){
@@ -923,6 +894,31 @@
       </div>
 
       <div class="k-card">
+        <div class="k-secttl">資産予測 ── このまま積み立てたら</div>
+        <div class="k-projhero">
+          <div class="lab">${projStartY+10}年（10年後）には</div>
+          <div class="amt">¥${fmt(proj10)}<span class="man">約${fmtMan(proj10)}円</span></div>
+          <div class="sub">今の毎月の積立ペースを、オルカン想定利回り 年${projRatePct}% で続けた場合</div>
+        </div>
+        <table class="k-projtable">
+          <thead><tr><th>時点</th><th>想定 年${projRatePct}%</th><th>控えめ 年3%</th></tr></thead>
+          <tbody>
+            ${projRows.map(r=>`<tr class="${r.hl?'hl':''}">
+              <td>${r.lab}<span class="yr">${r.y}年</span></td>
+              <td>¥${fmtMan(r.main)}</td>
+              <td class="low">¥${fmtMan(r.low)}</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+        <div class="k-projgoal ${projGoalMain?'':'miss'}">
+          <span>目標 ¥${fmtMan(goal)} に到達する見込み</span>
+          <span class="v">${projGoalMain?`${projGoalMain.y}年${projGoalMain.m}月`:'20年内は未到達'}</span>
+        </div>
+        ${svgProjChart(projMain, projLow, goal, HORIZON)}
+        <p class="k-note">全世界株式（オルカン）を想定利回り 年${projRatePct}% で試算。控えめに年3%だと20年後は約${fmtMan(projLow20)}円です。相場次第で上下し、将来を保証するものではありません。利回りは⚙（設定）で変えられます。</p>
+      </div>
+
+      <div class="k-card">
         <div class="k-secttl">資産の構成</div>
         <div class="k-allocbar" style="margin-top:2px;">
           ${investVal>0?`<span style="width:${investShare}%;background:var(--asset)"></span>`:''}
@@ -942,8 +938,6 @@
         <p class="k-note">生活防衛資金（生活費6ヶ月分）を確保するまでは現金優先、その後は余剰を投資へ——が基本の順番です。ポイントは使えば現金と同じ価値なので資産に含めています。</p>
       </div>
 
-      ${deltaBox}
-
       <div class="k-card">
         <div class="k-secttl">目標到達ペース</div>
         <div class="k-pacegrid">
@@ -957,7 +951,18 @@
           onTrack ? `現状の投資ペース（月¥${fmt(nowInvest)}）は、期日達成に必要な月¥${fmt(req.pmt)}を上回っています。このまま継続で計画通り。`
                   : `期日（${assumptions.targetYear}/${assumptions.targetMonth}）に間に合わせるには月¥${fmt(req.pmt)}が必要。現状は月¥${fmt(nowInvest)}なので、月¥${fmt(Math.max(0,req.pmt-nowInvest))}不足。期日を延ばすか入金を増やすか、運用リターン想定を見直す検討を。`
         }</div>
-        <p class="k-note">必要月額は「今の総資産が年率${(assumptions.returnRate*100).toFixed(1)}%で育ちつつ、毎月一定額を積む」前提での逆算です。期日は「前提」タブで変更できます。</p>
+        <p class="k-note">必要月額は「今の総資産が年率${(assumptions.returnRate*100).toFixed(1)}%で育ちつつ、毎月一定額を積む」前提での逆算です。期日は⚙（設定）で変更できます。</p>
+      </div>
+
+      <div class="k-card">
+        <div class="k-secttl">${nextLabel}の投資アクション（自動計算）</div>
+        <div class="k-nextinvest">
+          <div class="row"><span>固定投資</span><span>¥${fmt(mflow.investAmt)}</span></div>
+          <div class="row"><span>スポット購入（今月の自由残高から）</span><span>¥${fmt(spotAmt)}</span></div>
+          ${nextIsBonus ? `<div class="row"><span>ボーナスからの投資分</span><span>¥${fmt(nextRow?nextRow.bonus2inv:0)}</span></div>` : ''}
+          <div class="row total"><span>合計（証券口座への入金目安）</span><span>¥${fmt(nextInvestTotal)}</span></div>
+        </div>
+        <p class="k-note">現金・預金が生活防衛資金の目標に届くまでは、自由残高の半分をスポット購入に回します（届いた後は全額）。</p>
       </div>
 
       <div class="k-card">
@@ -976,7 +981,7 @@
         <p class="k-note" id="snap-principal-suggest" style="margin-top:6px;">元本の目安（自動計算）: ¥${fmt(suggestedPrincipal)}（開始投資残高＋これまで記録した投資額の合計） <button type="button" class="k-hintbtn" id="snap-principal-fill">この値を使う</button></p>
         <div id="snap-gain"></div>
         <button class="k-savebtn" id="k-snap-save" style="margin-top:12px;">この月の残高を記録</button>
-        <p class="k-note">月1回、口座残高を見て打ち込むだけ。記録すると上の到達予想・暴落テストが実際の数字で再計算され、下のグラフに実績点が乗ります。「評価額−元本」が含み益です。元本がわからなければ上のボタンで自動計算した値を使えます。</p>
+        <p class="k-note">月1回、口座残高を見て打ち込むだけ。記録すると上の到達予想が実際の数字で再計算され、下のグラフに実績点が乗ります。「評価額−元本」が含み益です。元本がわからなければ上のボタンで自動計算した値を使えます。</p>
       </div>
 
       <div class="k-card">
@@ -993,9 +998,14 @@
         </div>
         <div id="invlog-sum"></div>
         <button class="k-savebtn" id="k-invlog-save" style="margin-top:12px;">この月の積立額を記録</button>
-        <p class="k-note">「前提」タブの固定額は今後の想定値、こちらは実際に回した金額の記録です。記録した月はその実績が計算に優先して使われます。記録が無い月は前提の固定額で計算します。</p>
-        ${svgInvestLogChart()}
-        <div style="margin-top:6px;">${invLogListHtml}</div>
+        <p class="k-note">⚙（設定）の固定額は今後の想定値、こちらは実際に回した金額の記録です。記録した月はその実績が計算に優先して使われます。記録が無い月は想定の固定額で計算します。</p>
+        <details class="k-enemy" style="background:var(--bg); border:none; margin-top:10px;">
+          <summary style="border-left:4px solid var(--asset)"><span>これまでの積立の推移・履歴</span><span style="font-size:11px;color:var(--sub)">グラフと一覧</span></summary>
+          <div style="padding:8px 12px 4px;">
+            ${svgInvestLogChart()}
+            <div style="margin-top:6px;">${invLogListHtml}</div>
+          </div>
+        </details>
       </div>
 
       <div class="k-card">
@@ -1004,49 +1014,6 @@
         <p class="k-note">灰の点線が前提から引いた当初計画、濃紺の点が実際に記録した総資産。点が線の下に来ていたら計画より遅れ、上なら前倒しです。</p>
       </div>
 
-      <details class="k-enemy" style="background:#fff;margin-bottom:14px;">
-        <summary style="border-left:4px solid var(--gold-d)"><span>NISA枠の消化状況（おまけ）</span><span style="font-size:11px;color:var(--sub)">年間 ¥${fmt(anTotal)} / ¥${fmt(NISA.annualTotal)}</span></summary>
-        <div style="padding:4px 14px 14px;">
-          <div style="font-size:11px;color:var(--sub);font-weight:700;margin:2px 0 8px;">${curYear}年の年間枠（1/1リセット）</div>
-          ${gaugeHtml('tsumitate', an.tsumitate||0, NISA.annualTsumitate, 'つみたて投資枠')}
-          ${gaugeHtml('growth', an.growth||0, NISA.annualGrowth, '成長投資枠')}
-          <div class="k-progmeta" style="margin:-4px 0 12px;"><span></span><span>年間合計 ¥${fmt(anTotal)} / ¥${fmt(NISA.annualTotal)}</span></div>
-          <div style="font-size:11px;color:var(--sub);font-weight:700;margin:6px 0 8px;">生涯の非課税保有限度額</div>
-          ${gaugeHtml('lifetime', nisa.lifetimeUsed||0, NISA.lifetimeTotal, '生涯枠（総額・簿価ベース）')}
-          ${gaugeHtml('lifegrowth', nisa.lifetimeGrowthUsed||0, NISA.lifetimeGrowth, 'うち成長投資枠')}
-          <details class="k-enemy" style="background:var(--bg); border:none; margin-top:6px;">
-            <summary style="border-left:4px solid var(--gold-d)"><span>使用額を入力</span><span style="font-size:11px;color:var(--sub)">投資したら更新</span></summary>
-            <div style="padding:6px 12px 10px;">
-              <div class="k-snap-grid">
-                <div class="k-snap-f"><label>今年つみたて枠</label><input type="number" id="nisa-t" value="${an.tsumitate||0}"></div>
-                <div class="k-snap-f"><label>今年成長枠</label><input type="number" id="nisa-g" value="${an.growth||0}"></div>
-                <div class="k-snap-f"><label>生涯枠 使用済（総）</label><input type="number" id="nisa-lt" value="${nisa.lifetimeUsed||0}"></div>
-                <div class="k-snap-f"><label>生涯 成長枠 使用済</label><input type="number" id="nisa-lg" value="${nisa.lifetimeGrowthUsed||0}"></div>
-              </div>
-              <button class="k-savebtn" id="k-nisa-save" style="margin-top:10px;">NISA枠を保存</button>
-            </div>
-          </details>
-          <p class="k-note">新NISA：年間はつみたて120万＋成長240万＝最大360万（毎年リセット）、生涯は1,800万（うち成長枠は1,200万まで）。売却すると簿価分の生涯枠が翌年以降に復活します。楽天家計簿では追えない、非課税枠の使い残しをここで管理します。</p>
-        </div>
-      </details>
-
-      <div class="k-card">
-        <div class="k-secttl">暴落ストレステスト</div>
-        <p class="k-note" style="margin-bottom:8px;">投資信託 ¥${fmt(investVal)}${principal>0?`（元本 ¥${fmt(principal)}／含み${gain>=0?'益':'損'} ${gain>=0?'+':'−'}¥${fmt(Math.abs(gain))}）`:''} が急落したら総資産はどうなるか。現金・預金とポイントは下落しない前提です。</p>
-        <table class="k-stress">
-          <tr><th>下落</th><th>投資信託</th><th>総資産</th><th>元本比</th></tr>
-          ${stressRows}
-        </table>
-        <div class="k-defmonths">
-          <div class="lab">この暴落局面で、現金・預金だけで生活を支えられる期間</div>
-          <div class="big">約 ${defMonths.toFixed(1)} ヶ月分</div>
-          <div class="lab">（現金・預金 ¥${fmt(cashVal)} ÷ 月間生活費 ¥${fmt(monthlyExp)}・投資額を除く）</div>
-        </div>
-        <div class="k-verdict ${holdOk?'good':'bad'}">${
-          holdOk ? '生活防衛資金が6ヶ月分以上あります。暴落中も積立を止めず、むしろ安く買い増せる体制です。狼狽売りの必要はありません。'
-                 : `現金・預金が生活費の${defMonths.toFixed(1)}ヶ月分しかありません。暴落と収入減が重なると投資を取り崩す恐れがあります。まず現金・預金を厚くするのが先決です。`
-        }</div>
-      </div>
     `;
 
     // スナップショット入力の初期値
@@ -1107,7 +1074,7 @@
       if (i===0&&s===0&&t===0) delete investLog[key]; else investLog[key] = {invest:i, save:s, travel:t};
       await saveInvestLog();
       toast('積立額を記録しました');
-      renderAsset(); renderMonth(); renderYear();
+      renderAsset(); renderMonth();
     };
     document.getElementById('k-snap-save').onclick = async ()=>{
       const c=Number(document.getElementById('snap-cash').value)||0;
@@ -1118,28 +1085,18 @@
       else { snapshots[sKey] = {cash:c, points:pt, investValue:v, investPrincipal:p}; }
       await saveSnapshots();
       toast('残高を記録しました');
-      renderAsset(); renderYear();
-    };
-    document.getElementById('k-nisa-save').onclick = async ()=>{
-      const t=Number(document.getElementById('nisa-t').value)||0;
-      const g=Number(document.getElementById('nisa-g').value)||0;
-      nisa.annual[yKey] = {tsumitate:t, growth:g};
-      nisa.lifetimeUsed = Number(document.getElementById('nisa-lt').value)||0;
-      nisa.lifetimeGrowthUsed = Number(document.getElementById('nisa-lg').value)||0;
-      await saveNisa();
-      toast('NISA枠を保存しました');
       renderAsset();
     };
   }
 
   // ---------------- 使うタブ ----------------
   const CHECK_ITEMS = [
-    {q:'これは「経験」を生む買い物？', why:'モノでも、そこで過ごす時間や思い出になるか。<b>経験への支出は満足が長続きしやすい</b>（Van Boven & Gilovich 2003 / 原則①）。'},
-    {q:'よく使う・長く遊ぶ？（使用あたりが安い）', why:'使う回数が多いほど1回あたりが下がり、<b>「新品の喜びが薄れる」快楽順応に強い</b>。7千円のゲームを70時間なら1時間100円。'},
-    {q:'「大きな1回」より「小さな喜びの積み重ね」側？', why:'高額を一度どんとより、<b>小さな満足を何度も</b>の方が幸福度に効く（原則③）。'},
-    {q:'買った後の現実を具体的に想像した？', why:'置き場所・手入れ・すぐ飽きないか等、<b>見落としがちな細部</b>まで想像したか（原則⑥）。'},
-    {q:'使っている人のレビュー・声を見た？', why:'自分の予測より<b>他人の実体験の方が満足を当てる</b>。ある実験では他者情報が50%正確だった（原則⑧）。'},
-    {q:'スペック比較にハマって本質を見失っていない？', why:'比較しすぎると<b>幸福に関係ない属性</b>に気を取られる。「自分がどう使うか」に立ち返る（原則⑦）。'},
+    {q:'思い出や体験になる？', why:'<b>体験にお金を使うと満足が長続きしやすい</b>。'},
+    {q:'よく使う・長く遊ぶ？', why:'使う回数が多いほど1回あたりが安い。<b>7千円のゲームを70時間なら1時間100円</b>。'},
+    {q:'小さな喜びを何度も味わえる？', why:'高いものを一度どんと、より<b>小さな満足をくり返す</b>方が幸福度に効く。'},
+    {q:'買った後の現実を想像した？', why:'置き場所・手入れ・すぐ飽きないか等、<b>細部まで具体的に</b>思い浮かべたか。'},
+    {q:'使っている人の声を見た？', why:'自分の予想より<b>他人の実体験の方が満足を当てやすい</b>。'},
+    {q:'スペック比較にハマりすぎてない？', why:'比べすぎると本質を見失う。<b>「自分がどう使うか」に立ち返る</b>。'},
   ];
 
   function renderSpend(){
@@ -1202,22 +1159,24 @@
         <p class="k-note" style="text-align:left;">これは<b>投資・貯金・必須生活費を除いた後</b>の、自由に使ってよい上限。この枠の中なら投資を1円も遅らせません。<b>使うかどうかは月初に決めた枠内かで判断し、レジでは悩まない</b>——が狙いです。</p>
       </div>
 
-      <div class="k-card">
-        <div class="k-secttl">良い買い物チェック（服・ゲームで迷ったら）</div>
-        <p class="k-note" style="margin-bottom:6px;">迷っている品を思い浮かべて、当てはまるものにチェック。多くつくほど「満足が続きやすい買い物」です。</p>
-        <div id="k-checklist">
-          ${CHECK_ITEMS.map((it,i)=>`
-            <label class="k-check">
-              <input type="checkbox" data-check="${i}">
-              <span class="c-body"><span class="c-q">${it.q}</span><span class="c-why">${it.why}</span></span>
-            </label>`).join('')}
+      <details class="k-enemy" style="background:#fff;margin-bottom:14px;">
+        <summary style="border-left:4px solid var(--asset)"><span>良い買い物チェック（服・ゲームで迷ったら）</span><span style="font-size:11px;color:var(--sub)">タップで開く</span></summary>
+        <div style="padding:6px 16px 16px;">
+          <p class="k-note" style="margin-bottom:6px;">迷っている品を思い浮かべて、当てはまるものにチェック。多いほど「満足が続きやすい買い物」です。</p>
+          <div id="k-checklist">
+            ${CHECK_ITEMS.map((it,i)=>`
+              <label class="k-check">
+                <input type="checkbox" data-check="${i}">
+                <span class="c-body"><span class="c-q">${it.q}</span><span class="c-why">${it.why}</span></span>
+              </label>`).join('')}
+          </div>
+          <div class="k-checkverdict" id="k-checkverdict" style="background:var(--bg);color:var(--sub);">
+            <span class="score">0 / ${CHECK_ITEMS.length}</span>品を思い浮かべてチェックしてみましょう。
+          </div>
+          <p class="k-note" style="margin-top:10px;">もうひとつ：<b>今すぐでなく少し待てる？</b> 待っている間のワクワク自体が満足を増やします。延長保証など割高な保険は足さないのが基本。</p>
+          <p class="k-cite">満足が続きやすい買い物の特徴をまとめた目安です（消費者心理の研究が下敷き）。正解を断定するものではありません。</p>
         </div>
-        <div class="k-checkverdict" id="k-checkverdict" style="background:var(--bg);color:var(--sub);">
-          <span class="score">0 / ${CHECK_ITEMS.length}</span>品を思い浮かべてチェックしてみましょう。
-        </div>
-        <p class="k-note" style="margin-top:10px;">おまけ2つ：<b>今すぐでなく少し待てる？</b>（待つ間の“楽しみ”自体が幸福を増やす・原則⑤）／<b>延長保証など割高な保険を足していない？</b>（人は悪い結果にも慣れる・原則④）。</p>
-        <p class="k-cite">出典：Dunn, Gilbert &amp; Wilson (2011) “If money doesn't make you happy, then you probably aren't spending it right,” <i>Journal of Consumer Psychology</i> 21(2), 115–125 の8原則、および Van Boven &amp; Gilovich (2003) の経験＞モノ研究に基づく。これは満足を予測しやすくするための目安で、正解を断定するものではありません。</p>
-      </div>
+      </details>
 
       <div class="k-card">
         <div class="k-secttl">満足度ログ</div>
@@ -1291,207 +1250,11 @@
     });
   }
 
-  // ---------------- 年間タブ ----------------
-  function svgBarChart(){
-    const y = curYear;
-    const monthsData = [];
-    for (let m=1;m<=12;m++){
-      const actual = getMonthActual(y,m);
-      const diff = actual ? monthFlow(y,m).free : null;
-      monthsData.push({m, diff});
-    }
-    const W=660,H=170,pad=26;
-    const known = monthsData.filter(d=>d.diff!==null).map(d=>d.diff);
-    const maxV = Math.max(50000, ...known.map(v=>Math.abs(v)));
-    const barW = (W-pad*2)/12 - 6;
-    const zeroY = H/2;
-    let bars = '';
-    monthsData.forEach((d,i)=>{
-      const x = pad + i*((W-pad*2)/12) + 3;
-      if (d.diff===null){
-        bars += `<rect x="${x}" y="${zeroY-1}" width="${barW}" height="2" fill="#DADDEE"/>`;
-      } else {
-        const h = Math.abs(d.diff)/maxV*(H/2-20);
-        const y0 = d.diff>=0 ? zeroY-h : zeroY;
-        const color = d.diff>=0 ? 'var(--gold-d)' : 'var(--neg)';
-        bars += `<rect x="${x}" y="${y0}" width="${barW}" height="${Math.max(h,2)}" rx="3" fill="${color}"/>`;
-      }
-      bars += `<text x="${x+barW/2}" y="${H-6}" font-size="9" fill="var(--sub)" text-anchor="middle">${d.m}月</text>`;
-});
-    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
-      <line x1="${pad}" y1="${zeroY}" x2="${W-pad}" y2="${zeroY}" stroke="#DADDEE"/>
-      ${bars}
-    </svg>`;
-}
-
-  // ${curYear}年1〜12月の投資実績（investLog）を月別バーで表示。固定投資額の目安ラインも重ねる。
-  function svgYearInvestChart(y){
-    const W=660,H=150,padL=26,padR=14,padT=10,padB=24;
-    const vals = [];
-    for (let m=1;m<=12;m++){ const l=getLog(y,m); vals.push(l?l.invest:0); }
-    const maxV = Math.max(10000, assumptions.fixedInvest, ...vals);
-    const barW = (W-padL-padR)/12 - 6;
-    let bars = '';
-    for (let m=1;m<=12;m++){
-      const x = padL + (m-1)*((W-padL-padR)/12) + 3;
-      const v = vals[m-1];
-      const h = v>0 ? Math.max(v/maxV*(H-padT-padB), 2) : 0;
-      const y0 = H-padB-h;
-      if (v>0) bars += `<rect x="${x}" y="${y0}" width="${barW}" height="${h}" rx="3" fill="var(--asset)"/>`;
-      bars += `<text x="${x+barW/2}" y="${H-8}" font-size="9" fill="var(--sub)" text-anchor="middle">${m}月</text>`;
-    }
-    const lineY = H-padB - Math.min(1, assumptions.fixedInvest/maxV)*(H-padT-padB);
-    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
-      <line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#DADDEE"/>
-      ${assumptions.fixedInvest>0?`<line x1="${padL}" y1="${lineY.toFixed(1)}" x2="${W-padR}" y2="${lineY.toFixed(1)}" stroke="var(--gold-d)" stroke-dasharray="4 3"/>`:''}
-      ${bars}
-    </svg>
-    <div class="k-legend">
-      <span><i style="background:var(--asset)"></i>実際に投資した額（記録ベース）</span>
-      ${assumptions.fixedInvest>0?`<span><i style="background:var(--gold-d)"></i>固定投資額の目安（月¥${fmt(assumptions.fixedInvest)}）</span>`:''}
-    </div>`;
-  }
-
-
-  function svgLineChart(trace, goal){
-    const W=660,H=220,padL=54,padR=16,padT=16,padB=26;
-    const years = [];
-    for (let yy=2026; yy<=2035; yy++){
-      let last = null;
-      trace.forEach(r=>{ if (r.y===yy) last = r; });
-      if (last) years.push({y:yy, total:last.total});
-    }
-    const maxV = Math.max(assumptions.goalTotal*1.15, ...years.map(d=>d.total));
-    const x = i => padL + i*((W-padL-padR)/(years.length-1));
-    const yScale = v => padT + (1-v/maxV)*(H-padT-padB);
-    let path = years.map((d,i)=>`${i===0?'M':'L'}${x(i).toFixed(1)},${yScale(d.total).toFixed(1)}`).join(' ');
-    const goalY = yScale(assumptions.goalTotal);
-    let dots = years.map((d,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${yScale(d.total).toFixed(1)}" r="3.5" fill="var(--navy)"/>`).join('');
-          let labels = years.map((d,i)=>`<text x="${x(i).toFixed(1)}" y="${H-8}" font-size="9" fill="var(--sub)" text-anchor="middle">${d.y}</text>`).join('');
-                let goalMark = '';
-    if (goal){
-      const gi = (goal.y-2026) + (goal.m-1)/12;
-      const gx = padL + gi*((W-padL-padR)/(years.length-1));
-      const gy = yScale(goal.total);
-      goalMark = `<circle cx="${gx.toFixed(1)}" cy="${gy.toFixed(1)}" r="6" fill="var(--gold)" stroke="#fff" stroke-width="2"/>
-                <text x="${gx.toFixed(1)}" y="${(gy-12).toFixed(1)}" font-size="10" font-weight="700" fill="var(--gold-d)" text-anchor="middle">${goal.y}/${goal.m}</text>`;
-}
-    return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
-            <line x1="${padL}" y1="${goalY.toFixed(1)}" x2="${W-padR}" y2="${goalY.toFixed(1)}" stroke="var(--gold-d)" stroke-dasharray="4 4"/>
-            <text x="${padL}" y="${(goalY-5).toFixed(1)}" font-size="9" fill="var(--gold-d)">目標 ¥${fmt(assumptions.goalTotal)}</text>
-            <path d="${path}" fill="none" stroke="var(--navy)" stroke-width="2.5"/>
-            ${dots}${goalMark}${labels}
-          </svg>`;
-                                                                     }
-
-  function svgWalletChart(trace){
-        const W=660,H=190,padL=54,padR=16,padT=16,padB=26;
-    const years = [];
-    for (let yy=2026; yy<=2035; yy++){
-      let last = null;
-      trace.forEach(r=>{ if (r.y===yy) last = r; });
-      if (last) years.push(last);
-    }
-    const maxV = Math.max(...years.map(d=>Math.max(d.cash,d.invested,d.points||0)), 1);
-    const x = i => padL + i*((W-padL-padR)/(years.length-1));
-    const yScale = v => padT + (1-Math.max(v,0)/maxV)*(H-padT-padB);
-    function linePath(key){
-            return years.map((d,i)=>`${i===0?'M':'L'}${x(i).toFixed(1)},${yScale(d[key]||0).toFixed(1)}`).join(' ');
-                                                                         }
-    let labels = years.map((d,i)=>`<text x="${x(i).toFixed(1)}" y="${H-8}" font-size="9" fill="var(--sub)" text-anchor="middle">${d.y}</text>`).join('');
-          return `<svg viewBox="0 0 ${W} ${H}" width="100%" height="${H}">
-            <path d="${linePath('invested')}" fill="none" stroke="var(--asset)" stroke-width="2.5"/>
-            <path d="${linePath('cash')}" fill="none" stroke="var(--bank)" stroke-width="2.5"/>
-            <path d="${linePath('points')}" fill="none" stroke="var(--gold-d)" stroke-width="2.5"/>
-            ${labels}
-          </svg>
-          <div class="k-legend">
-            <span><i style="background:var(--asset)"></i>投資信託</span>
-            <span><i style="background:var(--bank)"></i>現金・預金</span>
-            <span><i style="background:var(--gold-d)"></i>ポイント</span>
-          </div>`;
-    }
-
-  function renderYear(){
-        const el = document.getElementById('tab-year');
-    const trace = anchoredProjection();
-    const goal = findGoal(trace);
-    let latest = trace[0];
-    for (const r of trace){ if (r.isActual) latest = r; }
-    const anchoredGoalAt = r => findGoal(anchoredProjection(r));
-    const g0 = anchoredGoalAt(0.0), g3 = anchoredGoalAt(0.03), g5 = anchoredGoalAt(0.05);
-    function scenRow(label, rate, g){
-            const isCurrent = Math.abs(rate - assumptions.returnRate) < 0.001;
-      return `<tr class="${isCurrent?'current':''}">
-                <td>${label}</td>
-                <td class="hi">${g ? `${g.y}/${g.m}` : '未到達'}</td>
-                <td>${g ? `${g.idx+1}ヶ月後` : '-'}</td>
-              </tr>`;
-    }
-    // 今年の投資ペース（積立記録の年間集計 vs 固定額ベースの想定）
-    let yearInvestTotal = 0, yearAssetTotal = 0, yearRecordedMonths = 0;
-    const yearStartM = (curYear===2026) ? 7 : 1;
-    for (let m=yearStartM; m<=12; m++){
-      const l = getLog(curYear,m);
-      if (l){ yearInvestTotal += l.invest; yearAssetTotal += logTotal(l); yearRecordedMonths++; }
-    }
-    const yearMonthCount = 12 - yearStartM + 1;
-    const yearInvestPlan = assumptions.fixedInvest * yearMonthCount;
-    const paceDiff = yearInvestTotal - (assumptions.fixedInvest * yearRecordedMonths);
-    el.innerHTML = `
-            <div class="k-goalbox">
-              <div class="t">目標到達予想</div>
-              <div class="v">${goal ? `${goal.y}年${goal.m}月頃` : '10年以内未到達'}</div>
-        <div class="s">${goal ? `起点から約${goal.idx+1}ヶ月後・運用リターン${(assumptions.returnRate*100).toFixed(1)}%想定` : ''}</div>
-      </div>
-      <div class="k-card">
-        <div class="k-secttl">${curYear}年の投資ペース</div>
-        <div class="k-pacegrid">
-          <div class="k-pacecell"><div class="t">投資した額（年間累計）</div><div class="v">¥${fmt(yearInvestTotal)}</div></div>
-          <div class="k-pacecell"><div class="t">固定投資額ベースの想定（年間）</div><div class="v">¥${fmt(yearInvestPlan)}</div></div>
-          <div class="k-pacecell ${paceDiff>=0?'good':'bad'}"><div class="t">記録済み月における想定との差</div><div class="v">${paceDiff>=0?'+':'−'}¥${fmt(Math.abs(paceDiff))}</div></div>
-          <div class="k-pacecell"><div class="t">資産形成の合計（投資＋貯金＋旅行）</div><div class="v">¥${fmt(yearAssetTotal)}</div></div>
-        </div>
-        ${svgYearInvestChart(curYear)}
-        <p class="k-note">「資産」タブの「今月の積立記録」で毎月の実績を記録すると、ここに積み上がっていきます。記録がない月は前提タブの固定額で計算しています。</p>
-      </div>
-      <div class="k-card">
-        <div class="k-secttl">資産の内訳（直近実績: ${latest.y}年${latest.m}月）</div>
-        <div class="k-walletrow">
-          <div class="k-wallet" style="background:var(--asset)"><div class="t">投資信託</div><div class="v">¥${fmt(latest.invested)}</div></div>
-          <div class="k-wallet" style="background:var(--bank)"><div class="t">現金・預金</div><div class="v">¥${fmt(latest.cash)}</div></div>
-          <div class="k-wallet" style="background:var(--gold-d)"><div class="t">ポイント</div><div class="v">¥${fmt(latest.points||0)}</div></div>
-        </div>
-        ${svgWalletChart(trace)}
-      </div>
-      <div class="k-card">
-        <div class="k-secttl">運用リターン別シナリオ比較</div>
-        <table class="k-scenario">
-          <tr><th>前提</th><th>到達年月</th><th>経過月数</th></tr>
-          ${scenRow('運用0%', 0.0, g0)}
-          ${scenRow('運用3%', 0.03, g3)}
-          ${scenRow('運用5%', 0.05, g5)}
-        </table>
-        <p class="k-note">ハイライトは「前提」タブで今設定している運用リターンです。</p>
-      </div>
-      <div class="k-card">
-        <div class="k-secttl">資産推移（年末スナップショット）</div>
-        ${svgLineChart(trace, goal)}
-      </div>
-      <details class="k-enemy" style="background:#fff;margin-bottom:14px;">
-        <summary style="border-left:4px solid var(--sub)"><span>おまけ：${curYear}年の月次収支の振れ幅</span><span style="font-size:11px;color:var(--sub)">敵1〜4を含む家計簿ベース</span></summary>
-        <div style="padding:4px 14px 14px;">
-          <p class="k-note" style="margin-bottom:6px;">収入から生活費・投資・貯金・旅行積立をすべて引いた「自由残高」の月ごとの振れ幅です。特定の月だけ大きく凹んでいたら、「今月」タブの使いすぎ分析で内訳を確認してみましょう。</p>
-          ${svgBarChart()}
-        </div>
-      </details>
-    `;
-}
 
   // ---------------- 前提タブ ----------------
   const ASSUMP_FIELDS = [
-{key:'returnRate', label:'運用リターン（年率、仮定）', type:'range', min:0, max:0.1, step:0.005, pct:true,
-        hint:'ここを動かすと到達予想がすぐ再計算されます'},
+{key:'returnRate', label:'運用リターン（オルカン想定・年率）', type:'range', min:0, max:0.1, step:0.005, pct:true,
+        hint:'全世界株式（オルカン）の想定利回り。初期値5%。動かすと資産予測がすぐ再計算されます'},
   {key:'defenseTarget', label:'生活防衛資金の目標額', type:'number',
         hint:'現金・預金がこの額に届くまではスポット購入を自由残高の50%に抑える'},
 {key:'defenseStart', label:'開始 現金・預金 残高', type:'number'},
@@ -1514,8 +1277,8 @@
   ];
   function renderAssump(){
         const el = document.getElementById('tab-assump');
-    el.innerHTML = `<div class="k-card"><div class="k-secttl">前提条件</div><div id="k-assump-list"></div></div>
-            <p class="k-note">数値を変えると「年間」タブの到達予想が自動で再計算されます。実績を入力した月は、この前提に関係なく実績が優先されます。</p>
+    el.innerHTML = `<div class="k-card"><div class="k-secttl">設定（前提条件）</div><div id="k-assump-list"></div></div>
+            <p class="k-note">数値を変えると「資産」タブの到達予想が自動で再計算されます。実績を入力した月は、この前提に関係なく実績が優先されます。ここは最初に一度設定すれば、あとはほとんど触りません。</p>
             <div class="k-card k-databox">
               <div class="k-secttl">データのバックアップ・読み込み</div>
               <p class="k-note">このアプリのデータはこの端末のブラウザ内だけに保存されます（アカウント同期なし）。機種変更や引っ越しの際は、下の「書き出す」でJSONをコピーし、新しい端末の「読み込む」に貼り付けてください。</p>
@@ -1536,8 +1299,7 @@
         range.oninput = async ()=>{
           assumptions[f.key] = Number(range.value);
           val.textContent = (assumptions[f.key]*100).toFixed(1)+'%';
-          await saveAssumptions();
-          renderYear(); renderAsset(); renderSpend();
+          await saveAssumptions(); renderAsset(); renderSpend();
 };
 } else if (f.type==='toggle'){
         row.innerHTML = `<label>${f.label}${f.hint?`<span class="hint">${f.hint}</span>`:''}</label>
@@ -1545,8 +1307,7 @@
         const chk = row.querySelector('input');
         chk.onchange = async ()=>{
           assumptions[f.key] = chk.checked ? 1 : 0;
-          await saveAssumptions();
-          renderYear(); renderAsset(); renderSpend();
+          await saveAssumptions(); renderAsset(); renderSpend();
 };
 } else {
         row.innerHTML = `<label>${f.label}${f.hint?`<span class="hint">${f.hint}</span>`:''}</label>
@@ -1554,8 +1315,7 @@
         const inp = row.querySelector('input');
         inp.onchange = async ()=>{
           assumptions[f.key] = Number(inp.value)||0;
-          await saveAssumptions();
-          renderYear(); renderAsset(); renderSpend();
+          await saveAssumptions(); renderAsset(); renderSpend();
 };
 }
       list.appendChild(row);
@@ -1589,7 +1349,7 @@
         await savePurchases();
         await saveInvestLog();
         toast('読み込みました');
-        renderMonth(); renderAsset(); renderSpend(); renderYear(); renderAssump();
+        renderMonth(); renderAsset(); renderSpend(); renderAssump();
 } catch(e){
         toast('JSONの形式が正しくありません');
 }
@@ -1601,7 +1361,7 @@
     btn.addEventListener('click', ()=>{
       document.querySelectorAll('.k-tab').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
-      ['month','asset','spend','year','assump'].forEach(t=>{
+      ['month','spend','asset','assump'].forEach(t=>{
         document.getElementById('tab-'+t).style.display = (t===btn.dataset.tab)?'block':'none';
 });
 });
@@ -1611,7 +1371,6 @@
     renderMonth();
     renderAsset();
     renderSpend();
-    renderYear();
     renderAssump();
 });
 })();
