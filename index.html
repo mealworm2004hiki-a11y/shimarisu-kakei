@@ -141,7 +141,7 @@ textarea{width:100%;height:84px;font-size:11px;font-family:ui-monospace,monospac
 <script>
 (function(){
   "use strict";
-  const DEF = {goalAmount:0, goalYears:5, investNow:0, cashNow:0, monthlyInvest:0, inheritAnnual:0, inheritTimes:0, returnRate:0.05, investRatio:0.5};
+  const DEF = {goalAmount:0, goalYears:5, investNow:0, cashNow:0, monthlyInvest:0, inheritAnnual:0, inheritTimes:0, returnRate:0.05};
   let setup = Object.assign({}, DEF);
   let months = {}; // { "2026-11": {income, expense, invest, extra} }
   let wants = [];   // [ {id, name, amount, bought} ]
@@ -189,12 +189,12 @@ textarea{width:100%;height:84px;font-size:11px;font-family:ui-monospace,monospac
     let lo=0, hi=3000000; for(let i=0;i<44;i++){ const mid=(lo+hi)/2; if(f(mid)>=setup.goalAmount) hi=mid; else lo=mid; }
     return Math.ceil(hi/1000)*1000;
   }
+  // 追加投資のおすすめは「目標に届かせるために今月必要な分」だけ（足りていれば0、残りは全部使っていい）
   function recoExtra(S){
     const gap=Math.max(0, requiredMonthly()-setup.monthlyInvest);
-    if(S<=0) return {a:0,gap,fillGap:0};
-    const fillGap=Math.min(S,gap), rest=S-fillGap;
-    let a=fillGap+Math.round(rest*(setup.investRatio||0)/1000)*1000;
-    return {a:Math.max(0,Math.min(a,S)), gap, fillGap};
+    if(S<=0) return {a:0,gap,fillGap:0,short:false};
+    const a=Math.min(S,gap);
+    return {a, gap, fillGap:a, short:(gap>S)};
   }
   function poolInfo(){
     const keys=Object.keys(months).sort(); let sum=0;
@@ -255,7 +255,7 @@ textarea{width:100%;height:84px;font-size:11px;font-family:ui-monospace,monospac
               return `<div class="item"><span class="nm">${p[0]}年${+p[1]}月<span style="display:block;font-size:10px;color:var(--sub);font-weight:400;margin-top:2px;">手取り¥${fmt(m.income)}／支出¥${fmt(m.expense)}／積立¥${fmt(m.invest)}${m.extra?`／追加投資¥${fmt(m.extra)}`:''}</span></span><span style="display:flex;align-items:center;"><span class="am" style="color:${s>=0?'var(--green)':'var(--red)'}">${s>=0?'+':'−'}¥${fmt(Math.abs(s))}</span><button class="del" data-delm="${k}">削除</button></span></div>`;
             }).join('')
         }</div>
-        <div class="note">支出合計は <b>投資・貯金を含めない</b> 生活・娯楽の合計。「手取り − 積立 − 追加投資 − 支出」の余りが上の残高に貯まります。</div>
+        <div class="note">支出合計は <b>投資・貯金を含めない</b> 生活・娯楽の合計。「手取り − 積立 − 追加投資 − 支出」の余りが上の残高に貯まります。<b>使わなかった分は消えずに繰り越され、実際には貯蓄（現金）として残ります</b>。目標は積立＋遺産で別に確保しているので、この繰り越しは"使ってもいいし、使わなければ資産として積み上がる"お金です。</div>
       </div>
       <div class="card">
         <div class="secttl">ほしいもの</div>
@@ -282,9 +282,10 @@ textarea{width:100%;height:84px;font-size:11px;font-family:ui-monospace,monospac
       const curExtra=mv(extraEl), useB=S-curExtra;
       if(!inc.value && !exp.value){ reco.style.display='none'; return; }
       let why;
-      if(S<=0) why='今月は余りが出ていないので、追加投資は無理せず見送りでOK。';
-      else if(r.gap>0) why=`目標ペースにあと少し。この額を追加投資すると目標に乗ります（うち¥${fmt(r.fillGap)}が目標ペース分）。`;
-      else why='目標は達成ペース。追加投資は"前倒し"用なので、残りは気兼ねなく使ってOK。割合は設定で変えられます。';
+      if(S<=0) why='今月は余りが出ていないので、追加投資は見送りでOK。';
+      else if(r.gap>0 && r.short) why=`目標ペースにはこの余りだけでは少し足りません。今月は全額を追加投資に回すのがおすすめ。足りない分は⚙設定で積立を増やすと安心です。`;
+      else if(r.gap>0) why=`目標に届かせるには、今月この額の追加投資がおすすめ。残りの¥${fmt(useB)}は気兼ねなく使ってOKです。`;
+      else why='目標は今の積立で達成ペース。追加投資は不要で、余りはすべて使っていいお金です。';
       reco.style.display='block';
       reco.innerHTML=`今月の余り <span class="big">¥${fmt(S)}</span><div class="split"><span class="inv">↑ 追加投資 ¥${fmt(Math.max(0,curExtra))}</span><span class="use">使っていい ¥${fmt(useB)}</span></div><small>${why}</small>`;
     }
@@ -347,7 +348,7 @@ textarea{width:100%;height:84px;font-size:11px;font-family:ui-monospace,monospac
           ${hz.map(h=>`<tr class="${h===gy?'hl':''}"><td>${h===0?'今':h+'年後'}<span class="yr">${curY+h}年</span></td><td>¥${fmtMan(main[h].total)}</td><td class="low">¥${fmtMan(low[h].total)}</td></tr>`).join('')}
         </tbody></table>
         ${svgChart(gy,rate)}
-        <div class="note">今の資産（投資¥${fmt(setup.investNow)}＋現金¥${fmt(setup.cashNow)}）に、毎月¥${fmt(setup.monthlyInvest)}の積立と遺産（毎年¥${fmt(setup.inheritAnnual)}×${setup.inheritTimes}回）を加えた試算。毎月の生活余り（＝使っていいお金）は含めていません。追加投資を続けた分は、ときどき「今の投資額」を更新すると予測に反映されます。将来を保証するものではありません。</div>
+        <div class="note">今の資産（投資¥${fmt(setup.investNow)}＋現金¥${fmt(setup.cashNow)}）に、毎月¥${fmt(setup.monthlyInvest)}の積立と遺産（毎年¥${fmt(setup.inheritAnnual)}×${setup.inheritTimes}回）を加えた試算。毎月の生活余り（＝使っていいお金）は含めていません。使わず繰り越した分は現金として積み上がるので、使わなければ実際はこの予測より前倒しで届きます。追加投資を続けた分や繰り越した貯蓄は、ときどき「今の投資額／今の現金」を実際の残高に更新すると予測に反映されます。将来を保証するものではありません。</div>
       </div>`;
     if(animate) animateValue(document.getElementById('goal-amt'), goalV);
   }
@@ -362,8 +363,6 @@ textarea{width:100%;height:84px;font-size:11px;font-family:ui-monospace,monospac
     {k:'cashNow',l:'今の現金・預金',h:'受け取り済みの遺産も含めて',money:true},
     {grp:'毎月の積立（目標の確保用）'},
     {k:'monthlyInvest',l:'投資の積立（月）',h:'オルカンなどに毎月積む額',money:true},
-    {grp:'余りの使いみち'},
-    {k:'investRatio',l:'余りを追加投資に回す目安',h:'0%=全部使う／100%=全部投資',range:true,min:0,max:1,step:0.05},
     {grp:'遺産など 臨時収入'},
     {k:'inheritAnnual',l:'1回あたりの金額',h:'毎年もらえる額',money:true},
     {k:'inheritTimes',l:'この先 あと何回',h:'受け取り済みを除く',int:true,suf:'回'},
